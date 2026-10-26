@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StoryCups.Application.Auth;
 using StoryCups.Application.Profile;
+using StoryCups.Contracts.Auth;
 using StoryCups.Infrastructure.Auth;
 using StoryCups.Infrastructure.Email;
 using StoryCups.Infrastructure.Identity;
@@ -40,7 +41,7 @@ public static class DependencyInjection
                 options.User.RequireUniqueEmail = true;
 
                 // Дължина вместо правила за състав (OWASP Authentication Cheat Sheet).
-                options.Password.RequiredLength = 10;
+                options.Password.RequiredLength = PasswordRules.MinLength;
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;

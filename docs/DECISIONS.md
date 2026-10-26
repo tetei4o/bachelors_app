@@ -137,7 +137,7 @@
 **Реализация в срез 1 (2026-10-26).** Решението е реализирано; отклоненията и уточненията са тук.
 - `sub` в access токена е Id на потребителя (UUIDv7, генериран от Npgsql), а не отделен публичен id. Токенът стига само до устройството на собственика. За QR кода остава отделен случаен идентификатор (бележка към ADR-005).
 - Вместо схема, избирана по път: бисквитката е схемата по подразбиране, а endpoint-ите на API-то изискват политика `api`, вързана към JWT bearer. Ефектът е същият, но се вижда при всеки endpoint; бисквитката не дава достъп до `/api`.
-- Парола: от 10 до 128 символа, без правила за състав (OWASP Authentication Cheat Sheet). Заключване след 5 грешни опита за 15 минути. `SignInManager` не проверява заключването и не брои опитите при непотвърден акаунт, затова `AuthService` го прави сам.
+- Парола: от 15 до 128 символа, без правила за състав. Паролата е единственият фактор, а NIST SP 800-63B-4 (раздел 3.1.1.2) изисква поне 15 символа в този случай; първата версия имаше 10. Константите са в `PasswordRules` (Contracts), общи за API-то и формите. Заключване след 5 грешни опита за 15 минути. `SignInManager` не проверява заключването и не брои опитите при непотвърден акаунт, затова `AuthService` го прави сам.
 - Без изброяване на акаунти: регистрация с вече използван имейл връща същия отговор, а собственикът на адреса получава писмо; „забравена парола“ и „ново писмо за потвърждение“ отговарят еднакво; „непотвърден имейл“ се казва само при вярна парола.
 - Rate limiting: фиксиран прозорец, 10 заявки в минута от IP адрес за `/api/v1/auth/*` (настройка `RateLimiting:AuthPermitsPerMinute`).
 - Ротацията е в една транзакция с optimistic concurrency по системната колона `xmin` на PostgreSQL. Отнемането на верига е една UPDATE заявка (`ExecuteUpdate`): първата версия зареждаше и записваше редовете и връщаше 500 при едновременни refresh заявки; грешката беше открита от интеграционен тест.
@@ -386,6 +386,7 @@ TOTP печели само по работа без връзка. Цената �
 - [RFC 8725: JSON Web Token Best Current Practices](https://www.rfc-editor.org/rfc/rfc8725)
 - [RFC 9700: Best Current Practice for OAuth 2.0 Security](https://www.rfc-editor.org/rfc/rfc9700)
 - [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
+- [NIST SP 800-63B-4: Authentication and Authenticator Management, раздел 3.1.1 Passwords](https://pages.nist.gov/800-63-4/sp800-63b.html)
 - [Microsoft Learn: .NET MAUI Blazor Hybrid app with a Blazor Web App](https://learn.microsoft.com/aspnet/core/blazor/hybrid/tutorials/maui-blazor-web-app)
 - [Microsoft Learn: Identity API endpoints](https://learn.microsoft.com/aspnet/core/security/authentication/identity-api-authorization)
 - [Microsoft Learn: .NET MAUI secure storage](https://learn.microsoft.com/dotnet/maui/platform-integration/storage/secure-storage)

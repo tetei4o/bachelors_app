@@ -58,7 +58,7 @@ tests/
    dotnet user-secrets set "Jwt:SigningKey" ([Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)))
    ```
 
-3. Демо акаунти (по избор). Паролите са поне 10 символа:
+3. Демо акаунти (по избор). Паролите са поне 15 символа:
 
    ```powershell
    dotnet user-secrets set "Seed:Users:0:Password" "<парола за barista@example.com>"

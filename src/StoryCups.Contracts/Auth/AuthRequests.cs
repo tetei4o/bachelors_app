@@ -10,7 +10,7 @@ public sealed class RegisterRequest
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Паролата е задължителна.")]
-    [StringLength(128, MinimumLength = 10, ErrorMessage = "Паролата трябва да е между {2} и {1} символа.")]
+    [StringLength(PasswordRules.MaxLength, MinimumLength = PasswordRules.MinLength, ErrorMessage = PasswordRules.LengthError)]
     public string Password { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Името е задължително.")]
