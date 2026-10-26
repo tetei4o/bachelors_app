@@ -1,0 +1,37 @@
+@page "/"
+@inject AuthSession Session
+@inject NavigationManager NavigationManager
+
+<PageTitle>Story Cups</PageTitle>
+
+@if (offline)
+{
+    <h1 class="h4 mt-3">Няма връзка със сървъра</h1>
+    <p>Приложението работи само онлайн. Проверете интернета или адреса на сървъра в настройките.</p>
+    <button class="btn btn-primary me-2" @onclick="RestoreAsync">Опитай отново</button>
+    <a class="btn btn-outline-secondary" href="settings">Настройки</a>
+}
+else
+{
+    <p class="mt-3 text-body-secondary">Зареждане...</p>
+}
+
+@code {
+    private bool offline;
+
+    protected override Task OnInitializedAsync() => RestoreAsync();
+
+    private async Task RestoreAsync()
+    {
+        offline = false;
+        try
+        {
+            await Session.RestoreAsync();
+            NavigationManager.NavigateTo(Session.IsSignedIn ? "profile" : "login", replace: true);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or InvalidOperationException)
+        {
+            offline = true;
+        }
+    }
+}

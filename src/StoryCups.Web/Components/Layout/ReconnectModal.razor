@@ -1,0 +1,31 @@
+<script type="module" src="@Assets["Components/Layout/ReconnectModal.razor.js"]"></script>
+
+<dialog id="components-reconnect-modal" data-nosnippet>
+    <div class="components-reconnect-container">
+        <div class="components-rejoining-animation" aria-hidden="true">
+            <div></div>
+            <div></div>
+        </div>
+        <p class="components-reconnect-first-attempt-visible">
+            Връзката със сървъра се възстановява...
+        </p>
+        <p class="components-reconnect-repeated-attempt-visible">
+            Неуспешно свързване. Нов опит след <span id="components-seconds-to-next-attempt"></span> секунди.
+        </p>
+        <p class="components-reconnect-failed-visible">
+            Връзката не беше възстановена.<br />Опитайте отново или презаредете страницата.
+        </p>
+        <button id="components-reconnect-button" class="components-reconnect-failed-visible">
+            Опитай отново
+        </button>
+        <p class="components-pause-visible">
+            Сесията е спряна от сървъра.
+        </p>
+        <p class="components-resume-failed-visible">
+            Сесията не беше подновена.<br />Опитайте отново или презаредете страницата.
+        </p>
+        <button id="components-resume-button" class="components-pause-visible components-resume-failed-visible">
+            Поднови
+        </button>
+    </div>
+</dialog>

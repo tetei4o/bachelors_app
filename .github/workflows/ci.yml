@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    name: Сървър: build и тестове
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore StoryCups.Server.slnf
+
+      - name: Build
+        run: dotnet build StoryCups.Server.slnf --no-restore --configuration Release
+
+      # Интеграционните тестове пускат PostgreSQL в Docker чрез Testcontainers.
+      - name: Test
+        run: dotnet test StoryCups.Server.slnf --no-build --configuration Release --logger trx --results-directory TestResults
+
+      - name: Test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: TestResults
+
+  mobile-android:
+    name: Мобилно: build за Android
+    runs-on: ubuntu-latest
+    # Още не е минавало успешно; става задължително след първия зелен build.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+
+      - name: Install Android dependencies
+        run: >
+          dotnet build src/StoryCups.Mobile/StoryCups.Mobile.csproj -t:InstallAndroidDependencies
+          -f net10.0-android -p:AndroidSdkDirectory="$ANDROID_HOME" -p:AcceptAndroidSDKLicenses=True
+
+      - name: Build
+        run: dotnet build src/StoryCups.Mobile/StoryCups.Mobile.csproj -f net10.0-android --configuration Debug -p:AndroidSdkDirectory="$ANDROID_HOME"

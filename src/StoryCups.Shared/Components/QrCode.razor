@@ -1,0 +1,24 @@
+@using QRCoder
+
+@* Рисува QR код като SVG. Общ за сайта и приложението (ADR-003); в срез 2 показва токена на клиента. *@
+
+<div class="sc-qr" role="img" aria-label="@AriaLabel">
+    @((MarkupString)svg)
+</div>
+
+@code {
+    private string svg = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public string AriaLabel { get; set; } = "QR код";
+
+    protected override void OnParametersSet()
+    {
+        using var generator = new QRCodeGenerator();
+        using var data = generator.CreateQrCode(Value, QRCodeGenerator.ECCLevel.M);
+        svg = new SvgQRCode(data).GetGraphic(8, "#000000", "#ffffff", true, SvgQRCode.SizingMode.ViewBoxAttribute);
+    }
+}

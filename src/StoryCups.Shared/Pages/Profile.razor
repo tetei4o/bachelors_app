@@ -1,0 +1,41 @@
+@page "/profile"
+@attribute [Authorize]
+@inject IProfileService ProfileService
+
+<PageTitle>Профил</PageTitle>
+
+<h1 class="h3 mb-3">Моят профил</h1>
+
+@if (loadFailed)
+{
+    <div class="alert alert-warning">Профилът не може да се зареди. Проверете връзката и опитайте отново.</div>
+}
+else if (profile is null)
+{
+    <p class="text-body-secondary">Зареждане...</p>
+}
+else
+{
+    <ProfileCard Profile="profile" />
+    <p class="text-body-secondary small mt-3">
+        Картата с QR код и печатите се появяват тук в следващата версия.
+    </p>
+}
+
+@code {
+    private ProfileDto? profile;
+    private bool loadFailed;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            profile = await ProfileService.GetCurrentAsync();
+            loadFailed = profile is null;
+        }
+        catch (HttpRequestException)
+        {
+            loadFailed = true;
+        }
+    }
+}

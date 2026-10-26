@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:scanner="clr-namespace:BarcodeScanning;assembly=BarcodeScanning.Native.Maui"
+             x:Class="StoryCups.Mobile.Scanning.ScannerPage"
+             Title="Сканиране"
+             BackgroundColor="Black">
+
+    <Grid RowDefinitions="*,Auto">
+        <scanner:CameraView x:Name="Camera"
+                            Grid.Row="0"
+                            BarcodeSymbologies="QRCode"
+                            VibrationOnDetected="True"
+                            TapToFocusEnabled="True"
+                            OnDetectionFinished="OnDetectionFinished" />
+
+        <Label Grid.Row="0"
+               Text="Насочете камерата към QR кода на клиента"
+               TextColor="White"
+               BackgroundColor="#803E271B"
+               Padding="12"
+               HorizontalOptions="Fill"
+               VerticalOptions="Start"
+               HorizontalTextAlignment="Center" />
+
+        <Button Grid.Row="1"
+                Text="Отказ"
+                Margin="16"
+                BackgroundColor="{StaticResource CoffeeDark}"
+                TextColor="White"
+                Clicked="OnCancelClicked" />
+    </Grid>
+
+</ContentPage>

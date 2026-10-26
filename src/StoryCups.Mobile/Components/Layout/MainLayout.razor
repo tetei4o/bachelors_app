@@ -1,0 +1,19 @@
+@inherits LayoutComponentBase
+
+<header class="navbar sc-navbar px-3">
+    <span class="navbar-brand">Story Cups</span>
+</header>
+
+<main class="container content">
+    @Body
+</main>
+
+<AuthorizeView>
+    <nav class="sc-tabbar" aria-label="Основна навигация">
+        <NavLink class="sc-tab" href="profile">Профил</NavLink>
+        <AuthorizeView Roles="Barista,Admin" Context="staff">
+            <NavLink class="sc-tab" href="scanner-test">Скенер</NavLink>
+        </AuthorizeView>
+        <NavLink class="sc-tab" href="settings">Настройки</NavLink>
+    </nav>
+</AuthorizeView>

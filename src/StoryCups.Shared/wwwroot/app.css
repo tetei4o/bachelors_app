@@ -1,0 +1,134 @@
+/* Обща тема за сайта и мобилното приложение. */
+:root {
+    --sc-ink: #1f1a17;
+    --sc-coffee: #5b3a29;
+    --sc-coffee-dark: #3e271b;
+    --sc-cream: #f6f1ea;
+    --sc-accent: #c8873a;
+    --maui-status-bar-safe-area-background: var(--sc-coffee-dark);
+}
+
+html, body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--sc-ink);
+    background-color: var(--sc-cream);
+}
+
+a, .btn-link {
+    color: var(--sc-coffee);
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: var(--sc-coffee);
+    border-color: var(--sc-coffee-dark);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--sc-coffee-dark);
+    border-color: var(--sc-coffee-dark);
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--sc-accent);
+}
+
+.sc-navbar {
+    background-color: var(--sc-coffee-dark);
+}
+
+.sc-navbar .navbar-brand, .sc-navbar .nav-link, .sc-navbar .btn-link {
+    color: #fff;
+}
+
+.sc-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 0.25rem 1rem rgba(31, 26, 23, 0.08);
+}
+
+.sc-avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background-color: var(--sc-coffee);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.sc-badge {
+    background-color: var(--sc-accent);
+}
+
+.content {
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
+}
+
+h1:focus {
+    outline: none;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid #e50000;
+}
+
+.validation-message {
+    color: #e50000;
+}
+
+.blazor-error-boundary {
+    background-color: #b32121;
+    padding: 1rem;
+    color: white;
+}
+
+.blazor-error-boundary::after {
+    content: "Възникна грешка.";
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+.darker-border-checkbox.form-check-input {
+    border-color: #929292;
+}
+
+.sc-qr {
+    width: min(18rem, 80vw);
+    aspect-ratio: 1;
+    background: #fff;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+}
+
+.sc-qr svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}

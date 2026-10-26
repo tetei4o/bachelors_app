@@ -1,0 +1,15 @@
+{
+  "solution": {
+    "path": "StoryCups.slnx",
+    "projects": [
+      "src/StoryCups.Application/StoryCups.Application.csproj",
+      "src/StoryCups.Contracts/StoryCups.Contracts.csproj",
+      "src/StoryCups.Domain/StoryCups.Domain.csproj",
+      "src/StoryCups.Infrastructure/StoryCups.Infrastructure.csproj",
+      "src/StoryCups.Shared/StoryCups.Shared.csproj",
+      "src/StoryCups.Web/StoryCups.Web.csproj",
+      "tests/StoryCups.IntegrationTests/StoryCups.IntegrationTests.csproj",
+      "tests/StoryCups.UnitTests/StoryCups.UnitTests.csproj"
+    ]
+  }
+}
