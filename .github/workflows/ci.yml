@@ -39,8 +39,6 @@ jobs:
   mobile-android:
     name: "Мобилно: build за Android"
     runs-on: ubuntu-latest
-    # Още не е минавало успешно; става задължително след първия зелен build.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v7
 
