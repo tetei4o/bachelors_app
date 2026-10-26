@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   server:
-    name: Сървър: build и тестове
+    name: "Сървър: build и тестове"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -37,7 +37,7 @@ jobs:
           path: TestResults
 
   mobile-android:
-    name: Мобилно: build за Android
+    name: "Мобилно: build за Android"
     runs-on: ubuntu-latest
     # Още не е минавало успешно; става задължително след първия зелен build.
     continue-on-error: true
