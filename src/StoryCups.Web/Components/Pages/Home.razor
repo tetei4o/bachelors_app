@@ -144,12 +144,17 @@
         <p class="sc-eyebrow mb-2">Посетете ни</p>
         <h2 id="visit-title" class="sc-section-title mb-4">@CafeInfo.Name</h2>
         <dl class="row mb-4">
-            <dt class="col-sm-3 col-lg-2 sc-muted fw-semibold">Град</dt>
-            <dd class="col-sm-9 col-lg-10">@CafeInfo.City</dd>
             <dt class="col-sm-3 col-lg-2 sc-muted fw-semibold">Адрес</dt>
-            <dd class="col-sm-9 col-lg-10">@CafeInfo.Address</dd>
+            <dd class="col-sm-9 col-lg-10">@CafeInfo.Address, @CafeInfo.City</dd>
             <dt class="col-sm-3 col-lg-2 sc-muted fw-semibold">Работно време</dt>
-            <dd class="col-sm-9 col-lg-10">@CafeInfo.OpeningHours</dd>
+            <dd class="col-sm-9 col-lg-10">
+                <ul class="list-unstyled mb-0">
+                    @foreach (var entry in CafeInfo.Hours)
+                    {
+                        <li>@entry.Days: @entry.Hours</li>
+                    }
+                </ul>
+            </dd>
         </dl>
         <div class="d-flex flex-wrap gap-2">
             @* Само връзки: вградена карта или профил би изпратил данни на посетителя към Google и Meta без съгласие (ADR-013). *@

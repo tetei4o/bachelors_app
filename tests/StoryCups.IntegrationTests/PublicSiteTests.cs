@@ -1,5 +1,6 @@
 using System.Net;
 using StoryCups.IntegrationTests.Infrastructure;
+using StoryCups.Web.Content;
 
 namespace StoryCups.IntegrationTests;
 
@@ -22,6 +23,7 @@ public sealed class PublicSiteTests(StoryCupsAppFactory app)
         Assert.Contains("Cappuccino", html);
         Assert.Contains("2,60 €", html);
         Assert.Contains("Caffè Leccese", html);
+        Assert.Contains(CafeInfo.Address, html);
         Assert.Contains("id=\"loyalty\"", html);
         Assert.Contains("href=\"Account/Register\"", html);
         Assert.DoesNotContain(InteractiveServerMarker, html);
