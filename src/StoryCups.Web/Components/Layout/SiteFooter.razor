@@ -1,0 +1,18 @@
+@using StoryCups.Web.Content
+
+<footer class="sc-dark sc-footer">
+    <div class="container d-flex flex-column flex-md-row gap-3 justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+            <Logo Size="44" Decorative="true" />
+            <div>
+                <div class="fw-bold">@CafeInfo.Name</div>
+                <div class="sc-muted">@CafeInfo.City</div>
+            </div>
+        </div>
+        <div class="d-flex flex-column gap-1 text-md-end">
+            <a href="@CafeInfo.InstagramUrl" rel="noopener noreferrer" target="_blank">Instagram: @@@CafeInfo.InstagramHandle<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
+            <a href="privacy">Поверителност</a>
+            <span class="sc-muted">Учебен проект (дипломна работа, ФПМИ, ТУ-София). Не е официален сайт на кафенето.</span>
+        </div>
+    </div>
+</footer>

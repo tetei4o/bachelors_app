@@ -18,7 +18,8 @@
 
 <div class="row justify-content-center">
     <div class="col-md-7 col-lg-5">
-        <h1 class="h3 mb-3">Вход</h1>
+        <h1 class="h3 mb-2">Вход</h1>
+        <p class="text-body-secondary mb-3">Профилът е нужен за личния QR код, печатите и отстъпките. Менюто е на <a href="">началната страница</a> и без вход.</p>
         <StatusMessage Message="@errorMessage" />
         <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
             <DataAnnotationsValidator />

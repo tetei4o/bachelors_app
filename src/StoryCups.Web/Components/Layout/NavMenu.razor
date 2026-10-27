@@ -3,23 +3,35 @@
 @inject NavigationManager NavigationManager
 
 <header class="navbar sc-navbar">
-    <nav class="container d-flex flex-wrap align-items-center gap-2" aria-label="Основна навигация">
-        <a class="navbar-brand me-auto" href="">Story Cups</a>
+    <nav class="container sc-nav" aria-label="Основна навигация">
+        <a class="navbar-brand" href="">
+            <Logo Size="40" Decorative="true" />
+            <span>Story Cups</span>
+        </a>
 
-        <AuthorizeView>
-            <Authorized>
-                <NavLink class="nav-link px-2" href="profile">@(context.User.FindFirst(AppUserClaimsPrincipalFactory.DisplayNameClaim)?.Value ?? context.User.Identity?.Name)</NavLink>
-                <form action="Account/Logout" method="post" class="d-inline">
-                    <AntiforgeryToken />
-                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                    <button type="submit" class="btn btn-link nav-link px-2">Изход</button>
-                </form>
-            </Authorized>
-            <NotAuthorized>
-                <NavLink class="nav-link px-2" href="Account/Login">Вход</NavLink>
-                <NavLink class="nav-link px-2" href="Account/Register">Регистрация</NavLink>
-            </NotAuthorized>
-        </AuthorizeView>
+        @* Секциите на началната страница; без вход (ADR-013). На телефон са на отделен ред. *@
+        <div class="sc-nav-sections">
+            <a class="nav-link px-2" href="#menu">Меню</a>
+            <a class="nav-link px-2" href="#loyalty">Карта за лоялност</a>
+            <a class="nav-link px-2" href="#visit">Посетете ни</a>
+        </div>
+
+        <div class="sc-nav-account">
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink class="nav-link px-2" href="profile">@(context.User.FindFirst(AppUserClaimsPrincipalFactory.DisplayNameClaim)?.Value ?? context.User.Identity?.Name)</NavLink>
+                    <form action="Account/Logout" method="post" class="d-inline">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                        <button type="submit" class="btn btn-link nav-link px-2">Изход</button>
+                    </form>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink class="nav-link px-2" href="Account/Login">Вход</NavLink>
+                    <NavLink class="nav-link px-2" href="Account/Register">Регистрация</NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
     </nav>
 </header>
 

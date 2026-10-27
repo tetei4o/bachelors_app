@@ -1,73 +1,463 @@
-/* Обща тема за сайта и мобилното приложение. */
+/* Обща тема за сайта и мобилното приложение (ADR-014). */
+
+/* Manrope (SIL OFL 1.1, виж fonts/OFL.txt), на собствения сървър, без външни заявки. */
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url("fonts/manrope-cyrillic-wght-normal.woff2") format("woff2-variations"),
+         url("fonts/manrope-cyrillic-wght-normal.woff2") format("woff2");
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url("fonts/manrope-latin-wght-normal.woff2") format("woff2-variations"),
+         url("fonts/manrope-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * Цветове от логото и профила в Instagram. Контраст по WCAG 2.2 (текст върху фон):
+ * ink/cream 14.3, cream/charcoal 14.3, beige/charcoal 7.9, white/sage-dark 6.9,
+ * sage-dark/cream 6.1, muted/cream 5.5, sage-light/charcoal 6.3, cream/sage 4.8.
+ */
 :root {
-    --sc-ink: #1f1a17;
-    --sc-coffee: #5b3a29;
-    --sc-coffee-dark: #3e271b;
-    --sc-cream: #f6f1ea;
-    --sc-accent: #c8873a;
-    --maui-status-bar-safe-area-background: var(--sc-coffee-dark);
+    --sc-charcoal: #1E2124;
+    --sc-charcoal-soft: #2A2E31;
+    --sc-sage: #55705C;
+    --sc-sage-dark: #46604D;
+    --sc-sage-deep: #3E5545;
+    --sc-sage-light: #8FA894;
+    --sc-beige: #C2B39D;
+    --sc-cream: #F5F0E8;
+    --sc-paper: #FFFFFF;
+    --sc-ink: #1E2124;
+    --sc-muted: #5C625E;
+    --sc-muted-on-dark: #A9A196;
+    --sc-danger: #9C3B2E;
+    --sc-font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    --bs-body-font-family: var(--sc-font);
+    --bs-body-color: var(--sc-ink);
+    --bs-body-color-rgb: 30, 33, 36;
+    --bs-body-bg: var(--sc-cream);
+    --bs-emphasis-color: var(--sc-ink);
+    --bs-secondary-color: var(--sc-muted);
+    --bs-link-color: var(--sc-sage-dark);
+    --bs-link-color-rgb: 70, 96, 77;
+    --bs-link-hover-color: var(--sc-sage-deep);
+    --bs-link-hover-color-rgb: 62, 85, 69;
+    --bs-border-radius: 0.625rem;
+    --bs-border-radius-lg: 0.875rem;
+    --bs-focus-ring-color: rgba(70, 96, 77, 0.45);
+
+    --maui-status-bar-safe-area-background: var(--sc-charcoal);
 }
 
 html, body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--sc-font);
     color: var(--sc-ink);
     background-color: var(--sc-cream);
 }
 
+body {
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    /* Стандартните кирилски форми; българските (locl за lang="bg") се включват с "locl" 1. */
+    font-feature-settings: "locl" 0;
+}
+
+button, input, select, textarea {
+    font-feature-settings: inherit;
+}
+
+/* Сайтът: долната лента стои долу и при къса страница. */
+.sc-site {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.sc-site > main {
+    flex: 1 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .display-6, .navbar-brand {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
 a, .btn-link {
-    color: var(--sc-coffee);
+    color: var(--sc-sage-dark);
+    text-underline-offset: 0.2em;
+}
+
+a:hover, .btn-link:hover {
+    color: var(--sc-sage-deep);
+}
+
+/* Бутони */
+.btn {
+    font-weight: 700;
+    border-radius: 999px;
+    padding-inline: 1.25rem;
 }
 
 .btn-primary {
-    color: #fff;
-    background-color: var(--sc-coffee);
-    border-color: var(--sc-coffee-dark);
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--sc-sage-dark);
+    --bs-btn-border-color: var(--sc-sage-dark);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--sc-sage-deep);
+    --bs-btn-hover-border-color: var(--sc-sage-deep);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--sc-sage-deep);
+    --bs-btn-active-border-color: var(--sc-sage-deep);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--sc-sage);
+    --bs-btn-disabled-border-color: var(--sc-sage);
 }
 
-.btn-primary:hover, .btn-primary:focus {
-    background-color: var(--sc-coffee-dark);
-    border-color: var(--sc-coffee-dark);
+.btn-outline-secondary {
+    --bs-btn-color: var(--sc-ink);
+    --bs-btn-border-color: var(--sc-ink);
+    --bs-btn-hover-color: var(--sc-cream);
+    --bs-btn-hover-bg: var(--sc-ink);
+    --bs-btn-hover-border-color: var(--sc-ink);
+    --bs-btn-active-color: var(--sc-cream);
+    --bs-btn-active-bg: var(--sc-ink);
+    --bs-btn-active-border-color: var(--sc-ink);
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--sc-accent);
+/* Бутон с контур върху тъмен фон. */
+.btn-sc-on-dark {
+    --bs-btn-color: var(--sc-beige);
+    --bs-btn-border-color: var(--sc-beige);
+    --bs-btn-hover-color: var(--sc-charcoal);
+    --bs-btn-hover-bg: var(--sc-beige);
+    --bs-btn-hover-border-color: var(--sc-beige);
+    --bs-btn-active-color: var(--sc-charcoal);
+    --bs-btn-active-bg: var(--sc-beige);
+    --bs-btn-active-border-color: var(--sc-beige);
 }
 
+/* Видим фокус от клавиатура: двоен пръстен, работи и върху светъл, и върху тъмен фон. */
+.btn:focus-visible, .btn-link.nav-link:focus-visible, .nav-link:focus-visible, .navbar-brand:focus-visible,
+.form-control:focus, .form-check-input:focus, a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.125rem var(--sc-cream), 0 0 0 0.3rem var(--sc-sage-dark);
+}
+
+.form-control {
+    border-color: #8A8F8B;
+}
+
+.form-control:focus {
+    border-color: var(--sc-sage-dark);
+}
+
+.form-check-input:checked {
+    background-color: var(--sc-sage-dark);
+    border-color: var(--sc-sage-dark);
+}
+
+.alert-info {
+    --bs-alert-color: var(--sc-ink);
+    --bs-alert-bg: #E4EBE3;
+    --bs-alert-border-color: #C9D6C9;
+}
+
+.text-danger, .validation-message {
+    color: var(--sc-danger) !important;
+}
+
+/* Горна лента */
 .sc-navbar {
-    background-color: var(--sc-coffee-dark);
+    background-color: var(--sc-charcoal);
+    padding-block: 0.75rem;
 }
 
-.sc-navbar .navbar-brand, .sc-navbar .nav-link, .sc-navbar .btn-link {
-    color: #fff;
+.sc-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.5rem;
 }
 
+.sc-nav .navbar-brand {
+    margin-right: auto;
+}
+
+.sc-nav-sections, .sc-nav-account {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* На тесен екран: лого и вход на първия ред, секциите на втори. */
+@media (max-width: 767.98px) {
+    .sc-nav-sections {
+        order: 3;
+        width: 100%;
+        margin-inline: -0.5rem;
+    }
+}
+
+.sc-navbar .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--sc-beige);
+    font-size: 1.2rem;
+    border-radius: 999px;
+}
+
+.sc-navbar .navbar-brand:hover {
+    color: var(--sc-cream);
+}
+
+.sc-navbar .nav-link, .sc-navbar .btn-link {
+    color: var(--sc-cream);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 0.5rem;
+}
+
+.sc-navbar .nav-link:hover, .sc-navbar .btn-link:hover {
+    color: var(--sc-beige);
+}
+
+.sc-navbar .nav-link.active {
+    color: var(--sc-beige);
+    text-decoration: underline;
+    text-decoration-color: var(--sc-sage-light);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.4em;
+}
+
+.sc-navbar .nav-link:focus-visible, .sc-navbar .btn-link:focus-visible, .sc-navbar .navbar-brand:focus-visible {
+    box-shadow: 0 0 0 0.125rem var(--sc-charcoal), 0 0 0 0.3rem var(--sc-beige);
+}
+
+.sc-logo {
+    flex-shrink: 0;
+    display: block;
+}
+
+/* Тъмни секции: начало, менюто, долната лента */
+.sc-dark {
+    background-color: var(--sc-charcoal);
+    color: var(--sc-cream);
+}
+
+.sc-dark a:not(.btn) {
+    color: var(--sc-sage-light);
+}
+
+.sc-dark a:not(.btn):hover {
+    color: var(--sc-beige);
+}
+
+.sc-dark a:focus-visible, .sc-dark .btn:focus-visible {
+    box-shadow: 0 0 0 0.125rem var(--sc-charcoal), 0 0 0 0.3rem var(--sc-beige);
+}
+
+.sc-dark .sc-muted {
+    color: var(--sc-muted-on-dark);
+}
+
+.sc-eyebrow {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sc-sage-dark);
+}
+
+.sc-dark .sc-eyebrow {
+    color: var(--sc-beige);
+}
+
+.sc-hero {
+    padding-block: 3.5rem 4rem;
+}
+
+.sc-hero h1 {
+    font-size: clamp(2.25rem, 6vw, 3.75rem);
+    color: var(--sc-cream);
+}
+
+.sc-hero .lead {
+    color: var(--sc-cream);
+    max-width: 36rem;
+}
+
+/* Карта в стила на етикета на Cold Brew: шалвия, светъл текст. */
+.sc-label {
+    background-color: var(--sc-sage);
+    color: var(--sc-cream);
+    border-radius: 1.25rem;
+    padding: 2rem;
+}
+
+.sc-label .sc-label-title {
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 800;
+    line-height: 1.05;
+    text-transform: uppercase;
+}
+
+.sc-section {
+    padding-block: 3.5rem;
+}
+
+.sc-section-title {
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+}
+
+/* Менюто: като дъската в кафенето. */
+.sc-menu-board {
+    background-color: var(--sc-charcoal);
+    color: var(--sc-cream);
+    border-radius: 1.25rem;
+    padding: 1.5rem 1.25rem;
+}
+
+.sc-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    column-gap: 3rem;
+}
+
+@media (min-width: 992px) {
+    .sc-menu-board {
+        padding: 2.25rem 2.5rem;
+    }
+
+    .sc-menu-list {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.sc-menu-item {
+    display: grid;
+    grid-template-columns: 1fr auto 4.75rem;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding-block: 0.55rem;
+    border-bottom: 1px solid rgba(194, 179, 157, 0.18);
+}
+
+.sc-menu-name {
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.sc-menu-volume {
+    color: var(--sc-muted-on-dark);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.sc-menu-price {
+    text-align: right;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    border-left: 1px solid var(--sc-cream);
+    padding-left: 0.75rem;
+}
+
+/* Стъпки и сравнението „без профил / с профил“ */
 .sc-card {
+    background-color: var(--sc-paper);
     border: none;
     border-radius: 1rem;
-    box-shadow: 0 0.25rem 1rem rgba(31, 26, 23, 0.08);
+    box-shadow: 0 0.25rem 1rem rgba(30, 33, 36, 0.08);
+}
+
+.sc-step-number {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--sc-sage-dark);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+}
+
+.sc-check-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sc-check-list li {
+    position: relative;
+    padding-left: 1.75rem;
+    margin-bottom: 0.4rem;
+}
+
+.sc-check-list li::before {
+    content: "";
+    position: absolute;
+    left: 0.2rem;
+    top: 0.55em;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background-color: var(--sc-sage);
+}
+
+.sc-card-account {
+    background-color: var(--sc-sage-dark);
+    color: #fff;
+}
+
+.sc-card-account .sc-check-list li::before {
+    background-color: var(--sc-beige);
 }
 
 .sc-avatar {
     width: 3.5rem;
     height: 3.5rem;
     border-radius: 50%;
-    background-color: var(--sc-coffee);
+    background-color: var(--sc-sage-dark);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
+    font-weight: 800;
     font-size: 1.25rem;
     flex-shrink: 0;
 }
 
 .sc-badge {
-    background-color: var(--sc-accent);
+    background-color: var(--sc-charcoal);
+    color: var(--sc-beige);
+    font-weight: 700;
+}
+
+.sc-footer {
+    padding-block: 2.5rem;
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(194, 179, 157, 0.18);
 }
 
 .content {
-    padding-top: 1.25rem;
-    padding-bottom: 2rem;
+    padding-top: 1.5rem;
+    padding-bottom: 2.5rem;
 }
 
 h1:focus {
@@ -75,19 +465,15 @@ h1:focus {
 }
 
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+    outline: 1px solid var(--sc-sage);
 }
 
 .invalid {
-    outline: 1px solid #e50000;
-}
-
-.validation-message {
-    color: #e50000;
+    outline: 1px solid var(--sc-danger);
 }
 
 .blazor-error-boundary {
-    background-color: #b32121;
+    background-color: var(--sc-danger);
     padding: 1rem;
     color: white;
 }
@@ -97,7 +483,8 @@ h1:focus {
 }
 
 #blazor-error-ui {
-    background: lightyellow;
+    background: #FBF3D9;
+    color: var(--sc-ink);
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
     display: none;
@@ -116,7 +503,7 @@ h1:focus {
 }
 
 .darker-border-checkbox.form-check-input {
-    border-color: #929292;
+    border-color: #6F746F;
 }
 
 .sc-qr {
@@ -131,4 +518,14 @@ h1:focus {
     width: 100%;
     height: 100%;
     display: block;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
 }

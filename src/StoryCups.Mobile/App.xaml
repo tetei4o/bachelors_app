@@ -4,8 +4,10 @@
              x:Class="StoryCups.Mobile.App">
     <Application.Resources>
         <ResourceDictionary>
-            <Color x:Key="CoffeeDark">#3E271B</Color>
-            <Color x:Key="Cream">#F6F1EA</Color>
+            <!-- Същите цветове като в StoryCups.Shared/wwwroot/app.css (ADR-014). -->
+            <Color x:Key="Charcoal">#1E2124</Color>
+            <Color x:Key="SageDark">#46604D</Color>
+            <Color x:Key="Cream">#F5F0E8</Color>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -26,9 +26,14 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<IProfileService, ServerProfileService>();
 
-// Кирилицата се извежда като текст, а не като &#x...; ентитита.
+// Кирилицата, „кавичките“, € и „è“ от менюто се извеждат като текст, а не като &#x...; ентитита.
 builder.Services.AddWebEncoders(options =>
-    options.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic));
+    options.TextEncoderSettings = new TextEncoderSettings(
+        UnicodeRanges.BasicLatin,
+        UnicodeRanges.Latin1Supplement,
+        UnicodeRanges.GeneralPunctuation,
+        UnicodeRanges.CurrencySymbols,
+        UnicodeRanges.Cyrillic));
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
