@@ -230,7 +230,6 @@ a:hover, .btn-link:hover {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: 0.5rem;
 }
 
 .sc-nav .navbar-brand {
@@ -249,6 +248,15 @@ a:hover, .btn-link:hover {
         order: 3;
         width: 100%;
         margin-inline: -0.5rem;
+    }
+}
+
+/* На широк екран профилът е отделен с линия точно по средата между двете групи. */
+@media (min-width: 768px) {
+    .sc-nav-account {
+        margin-left: 0.5rem;
+        padding-left: 0.5rem;
+        border-left: 1px solid var(--sc-charcoal-line);
     }
 }
 
@@ -321,7 +329,7 @@ a:hover, .btn-link:hover {
 
 .sc-section-title {
     font-size: clamp(1.75rem, 4vw, 2.5rem);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
 }
 
 .sc-dark .sc-section-title {
@@ -484,13 +492,15 @@ a:hover, .btn-link:hover {
 
 .sc-menu-grid {
     display: grid;
-    gap: 2rem;
+    gap: 2.5rem;
 }
 
+/* Заглавието „Меню“ и първата напитка стоят на една базова линия. */
 @media (min-width: 992px) {
     .sc-menu-grid {
         grid-template-columns: 18rem minmax(0, 40rem);
         gap: 4rem;
+        align-items: first baseline;
     }
 }
 
@@ -513,17 +523,27 @@ a:hover, .btn-link:hover {
     white-space: nowrap;
 }
 
+/*
+ * Линията пред цените е точно по средата: обемът е подравнен вдясно на --sc-rule-gap от нея,
+ * а цената започва на същото разстояние след нея. Редовете ползват колоните на списъка (subgrid),
+ * така че линията е една и съща за всички напитки. Без subgrid остава колона с фиксирана ширина.
+ */
 .sc-menu-list {
+    --sc-rule-gap: 1rem;
     list-style: none;
     margin: 0;
     padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    column-gap: var(--sc-rule-gap);
 }
 
 .sc-menu-item {
+    grid-column: 1 / -1;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto 5.25rem;
+    grid-template-columns: subgrid;
     align-items: baseline;
-    column-gap: 1rem;
 }
 
 .sc-menu-name {
@@ -537,6 +557,7 @@ a:hover, .btn-link:hover {
 .sc-menu-volume {
     color: var(--sc-muted-on-dark);
     white-space: nowrap;
+    text-align: right;
 }
 
 .sc-price {
@@ -549,6 +570,7 @@ a:hover, .btn-link:hover {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    padding-left: var(--sc-rule-gap);
     font-weight: 700;
     white-space: nowrap;
     border-left: 1px solid var(--sc-cream);
@@ -589,7 +611,7 @@ a:hover, .btn-link:hover {
 }
 
 .sc-steps h3 {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
 }
 
 .sc-steps p {
@@ -631,18 +653,20 @@ a:hover, .btn-link:hover {
     gap: 2.5rem;
 }
 
+/* Адресът и „Работно време“ започват на една базова линия; часовете стигат до десния край като картата в началото. */
 @media (min-width: 992px) {
     .sc-visit-grid {
-        grid-template-columns: minmax(0, 1fr) 24rem;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 4rem;
-        align-items: end;
+        align-items: first baseline;
     }
 }
 
+/* Както в началото: 2rem от текста до бутоните. */
 .sc-address {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1.75rem;
+    margin-bottom: 2rem;
 }
 
 .sc-address-street {
@@ -659,13 +683,21 @@ a:hover, .btn-link:hover {
     margin-bottom: 0.5rem;
 }
 
+/* Същата линия като в менюто: по средата между дните и часовете. */
 .sc-hours {
+    --sc-rule-gap: 1rem;
     margin: 0;
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: start;
+    column-gap: var(--sc-rule-gap);
 }
 
 .sc-hours > div {
+    grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 8rem;
+    grid-template-columns: 11rem auto;
+    grid-template-columns: subgrid;
 }
 
 .sc-hours dt {
@@ -676,7 +708,7 @@ a:hover, .btn-link:hover {
 
 .sc-hours dd {
     margin: 0;
-    padding-left: 1rem;
+    padding-left: var(--sc-rule-gap);
     border-left: 1px solid var(--sc-cream);
     display: flex;
     align-items: center;
@@ -710,9 +742,65 @@ a:hover, .btn-link:hover {
     font-weight: 700;
 }
 
+/* Долна лента: кафенето и социалните мрежи на първия ред, поверителност и бележка под линия. */
 .sc-footer {
     padding-block: 2.5rem;
     font-size: 0.9rem;
+    border-top: 1px solid var(--sc-charcoal-line);
+}
+
+.sc-footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+@media (max-width: 575.98px) {
+    .sc-footer-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.sc-footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sc-social {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Кръгли бутони с иконите, 44 px за докосване. Селекторът е колкото .sc-dark a:not(.btn) и е след него. */
+.sc-social a.sc-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--sc-beige);
+    color: var(--sc-beige);
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.sc-social a.sc-social-link:hover {
+    background-color: var(--sc-beige);
+    color: var(--sc-charcoal);
+}
+
+.sc-footer-meta {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-top: 1.5rem;
     border-top: 1px solid var(--sc-charcoal-line);
 }
 

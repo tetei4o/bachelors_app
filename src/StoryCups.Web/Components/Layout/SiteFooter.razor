@@ -1,16 +1,32 @@
 @using StoryCups.Web.Content
 
 <footer class="sc-dark sc-footer">
-    <div class="container d-flex flex-column flex-md-row gap-3 justify-content-between">
-        <div class="d-flex align-items-center gap-3">
+    <div class="container sc-footer-grid">
+        <div class="sc-footer-brand">
             <Logo Size="44" Decorative="true" />
             <div>
                 <div class="fw-bold">@CafeInfo.Name</div>
                 <div class="sc-muted">@CafeInfo.Address, @CafeInfo.City</div>
             </div>
         </div>
-        <div class="d-flex flex-column gap-1 text-md-end">
-            <a href="@CafeInfo.InstagramUrl" rel="noopener noreferrer" target="_blank">Instagram: @@@CafeInfo.InstagramHandle<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
+
+        @* Само връзки към профилите, без вградени публикации (ADR-013). *@
+        <ul class="sc-social" aria-label="Кафенето в социалните мрежи">
+            <li>
+                <a class="sc-social-link" href="@CafeInfo.InstagramUrl" rel="noopener noreferrer" target="_blank" title="Instagram">
+                    <SocialIcon Network="SocialNetwork.Instagram" />
+                    <span class="visually-hidden">Instagram (отваря се в нов раздел)</span>
+                </a>
+            </li>
+            <li>
+                <a class="sc-social-link" href="@CafeInfo.FacebookUrl" rel="noopener noreferrer" target="_blank" title="Facebook">
+                    <SocialIcon Network="SocialNetwork.Facebook" />
+                    <span class="visually-hidden">Facebook (отваря се в нов раздел)</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sc-footer-meta">
             <a href="privacy">Поверителност</a>
             <span class="sc-muted">Учебен проект (дипломна работа, ФПМИ, ТУ-София). Не е официален сайт на кафенето.</span>
         </div>

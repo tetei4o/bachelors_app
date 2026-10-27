@@ -30,6 +30,18 @@ public sealed class PublicSiteTests(StoryCupsAppFactory app)
     }
 
     [Fact]
+    public async Task Home_Anonymous_FooterLinksToInstagramAndFacebookWithScreenReaderText()
+    {
+        var html = WebUtility.HtmlDecode(await client.GetStringAsync("/"));
+
+        // Иконите са скрити от екранния четец, затова всяка връзка носи свой текст.
+        Assert.Contains($"href=\"{CafeInfo.InstagramUrl}\"", html);
+        Assert.Contains($"href=\"{CafeInfo.FacebookUrl}\"", html);
+        Assert.Contains("Instagram (отваря се в нов раздел)", html);
+        Assert.Contains("Facebook (отваря се в нов раздел)", html);
+    }
+
+    [Fact]
     public async Task Privacy_Anonymous_IsStaticPage()
     {
         var response = await client.GetAsync("/privacy");

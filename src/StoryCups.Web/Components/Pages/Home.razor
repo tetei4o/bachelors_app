@@ -104,30 +104,34 @@
 </section>
 
 <section id="visit" class="sc-dark sc-section" aria-labelledby="visit-title">
-    <div class="container sc-visit-grid">
-        <div>
-            <h2 id="visit-title" class="sc-section-title">Посетете ни</h2>
-            <p class="sc-address">
-                <span class="sc-address-street">@CafeInfo.Address</span>
-                <span class="sc-muted">@CafeInfo.City</span>
-            </p>
-            <div class="d-flex flex-wrap gap-2">
-                @* Само връзки: вградена карта или профил би изпратил данни на посетителя към Google и Meta без съгласие (ADR-013). *@
-                <a class="btn btn-primary" href="@CafeInfo.MapsUrl" rel="noopener noreferrer" target="_blank">Отворете в Google Maps<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
-                <a class="btn btn-sc-on-dark" href="@CafeInfo.InstagramUrl" rel="noopener noreferrer" target="_blank">Instagram<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
+    <div class="container">
+        <h2 id="visit-title" class="sc-section-title">Посетете ни</h2>
+        @* Адресът и работното време започват на една базова линия. *@
+        <div class="sc-visit-grid">
+            <div>
+                <p class="sc-address">
+                    <span class="sc-address-street">@CafeInfo.Address</span>
+                    <span class="sc-muted">@CafeInfo.City</span>
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    @* Само връзки: вградена карта или профил би изпратил данни на посетителя към Google и Meta без съгласие (ADR-013). *@
+                    <a class="btn btn-primary" href="@CafeInfo.MapsUrl" rel="noopener noreferrer" target="_blank">Отворете в Google Maps<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
+                    <a class="btn btn-sc-on-dark" href="@CafeInfo.InstagramUrl" rel="noopener noreferrer" target="_blank">Instagram<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
+                    <a class="btn btn-sc-on-dark" href="@CafeInfo.FacebookUrl" rel="noopener noreferrer" target="_blank">Facebook<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
+                </div>
             </div>
-        </div>
-        <div>
-            <h3 class="sc-hours-title">Работно време</h3>
-            <dl class="sc-hours">
-                @foreach (var entry in CafeInfo.Hours)
-                {
-                    <div>
-                        <dt>@entry.Days</dt>
-                        <dd>@entry.Hours</dd>
-                    </div>
-                }
-            </dl>
+            <div>
+                <h3 class="sc-hours-title">Работно време</h3>
+                <dl class="sc-hours">
+                    @foreach (var entry in CafeInfo.Hours)
+                    {
+                        <div>
+                            <dt>@entry.Days</dt>
+                            <dd>@entry.Hours</dd>
+                        </div>
+                    }
+                </dl>
+            </div>
         </div>
     </div>
 </section>
