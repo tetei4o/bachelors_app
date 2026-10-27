@@ -1,0 +1,26 @@
+@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>Грешка</PageTitle>
+
+<h1 class="h3 text-danger">Възникна грешка</h1>
+<p>Заявката не беше обработена. Опитайте отново по-късно.</p>
+
+@if (ShowRequestId)
+{
+    <p class="small text-body-secondary">
+        Номер на заявката: <code>@RequestId</code>
+    </p>
+}
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}

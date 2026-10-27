@@ -1,0 +1,47 @@
+@page "/"
+
+<PageTitle>Story Cups: карта за лоялност</PageTitle>
+
+<section class="py-4">
+    <h1 class="display-6">Карта за лоялност на Story Cups</h1>
+    <p class="lead">
+        Събирайте печати с QR код от телефона си. На всеки 8 печата получавате една безплатна напитка.
+    </p>
+
+    <AuthorizeView>
+        <Authorized>
+            <a class="btn btn-primary btn-lg" href="profile">Към профила</a>
+        </Authorized>
+        <NotAuthorized>
+            <a class="btn btn-primary btn-lg me-2" href="Account/Register">Регистрация</a>
+            <a class="btn btn-outline-secondary btn-lg" href="Account/Login">Вход</a>
+        </NotAuthorized>
+    </AuthorizeView>
+</section>
+
+<section class="row g-3">
+    <div class="col-md-4">
+        <div class="card sc-card h-100">
+            <div class="card-body">
+                <h2 class="h5">1. Регистрирайте се</h2>
+                <p class="mb-0">Нужни са имейл, парола и име за показване.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card sc-card h-100">
+            <div class="card-body">
+                <h2 class="h5">2. Покажете QR кода</h2>
+                <p class="mb-0">Баристата го сканира при поръчка. Кодът се сменя на всяка минута.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card sc-card h-100">
+            <div class="card-body">
+                <h2 class="h5">3. Вземете наградата</h2>
+                <p class="mb-0">След 8 печата баристата отбелязва безплатна напитка.</p>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,52 @@
+@page "/Account/ResendEmailConfirmation"
+
+@using System.ComponentModel.DataAnnotations
+@using StoryCups.Application.Auth
+
+@inject IAuthService AuthService
+
+<PageTitle>Ново писмо за потвърждение</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <h1 class="h3 mb-3">Ново писмо за потвърждение</h1>
+        <StatusMessage Message="@message" />
+        <EditForm Model="Input" FormName="resend-email-confirmation" OnValidSubmit="OnValidSubmitAsync" method="post">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <label for="Input.Email" class="form-label">Имейл</label>
+                <ValidationMessage For="() => Input.Email" class="text-danger" />
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Изпрати</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private string? message;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Input ??= new();
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        await AuthService.ResendConfirmationAsync(Input.Email);
+
+        // Едно и също съобщение независимо дали акаунтът съществува.
+        message = "Ако адресът има непотвърден акаунт, изпратихме ново писмо.";
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "Имейлът е задължителен.")]
+        [EmailAddress(ErrorMessage = "Невалиден имейл.")]
+        public string Email { get; set; } = "";
+    }
+}

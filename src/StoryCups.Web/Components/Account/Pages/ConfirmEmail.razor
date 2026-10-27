@@ -1,0 +1,51 @@
+@page "/Account/ConfirmEmail"
+
+@using StoryCups.Application.Auth
+
+@inject IAuthService AuthService
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Потвърждение на имейла</PageTitle>
+
+<h1 class="h3">Потвърждение на имейла</h1>
+<StatusMessage Message="@statusMessage" />
+@if (confirmed)
+{
+    <p><a class="btn btn-primary" href="Account/Login">Към входа</a></p>
+}
+
+@code {
+    private string? statusMessage;
+    private bool confirmed;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromQuery]
+    private string? UserId { get; set; }
+
+    [SupplyParameterFromQuery]
+    private string? Code { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserId is null || Code is null)
+        {
+            RedirectManager.RedirectTo("");
+            return;
+        }
+
+        if (!Guid.TryParse(UserId, out var userId))
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            statusMessage = $"{StatusMessage.ErrorPrefix} Връзката е невалидна или е изтекла.";
+            return;
+        }
+
+        var result = await AuthService.ConfirmEmailAsync(userId, Code);
+        confirmed = result.IsSuccess;
+        statusMessage = confirmed
+            ? "Имейлът е потвърден. Вече можете да влезете."
+            : $"{StatusMessage.ErrorPrefix} {result.Error!.Message}";
+    }
+}

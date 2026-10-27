@@ -1,0 +1,44 @@
+@page "/dev/qr"
+@using System.Security.Cryptography
+@using Microsoft.AspNetCore.WebUtilities
+@using QRCoder
+@inject IWebHostEnvironment Environment
+
+<PageTitle>Тестов QR код</PageTitle>
+
+@if (!Environment.IsDevelopment())
+{
+    <p>Страницата е налична само в режим за разработка.</p>
+}
+else
+{
+    <h1 class="h3">Тестов QR код за spike-а на скенера</h1>
+    <p class="text-body-secondary">
+        Случайни 74 байта в base64url: същата дължина като токена от ADR-005, но без подпис. Само за проверка на скоростта на сканиране.
+    </p>
+
+    <QrCode Value="@payload" AriaLabel="Тестов QR код" />
+
+    <p class="mt-3 small">
+        Дължина: @payload.Length символа, QR версия @Version(payload) при ниво на корекция M<br />
+        Начало: <code>@payload[..12]</code>
+    </p>
+    <button class="btn btn-primary" @onclick="NewCode">Нов код</button>
+}
+
+@code {
+    private const int TokenBytes = 74;
+
+    private string payload = NewPayload();
+
+    private void NewCode() => payload = NewPayload();
+
+    private static int Version(string value)
+    {
+        using var generator = new QRCodeGenerator();
+        using var data = generator.CreateQrCode(value, QRCodeGenerator.ECCLevel.M);
+        return data.Version;
+    }
+
+    private static string NewPayload() => WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(TokenBytes));
+}

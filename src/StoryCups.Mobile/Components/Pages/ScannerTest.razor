@@ -1,0 +1,85 @@
+@page "/scanner-test"
+@attribute [Authorize(Roles = "Barista,Admin")]
+@inject IScannerService Scanner
+
+<PageTitle>Тест на скенера</PageTitle>
+
+<h1 class="h4 mt-3">Тест на скенера</h1>
+<p class="small text-body-secondary">
+    Spike по ADR-003: сканирайте тестовия код от /dev/qr на сайта. Цел: под 2 s в поне 9 от 10 опита.
+    Времето се мери от включването на камерата до разпознаването.
+</p>
+
+<button class="btn btn-primary btn-lg w-100 mb-3" @onclick="ScanAsync" disabled="@busy">Сканирай</button>
+
+@if (message is not null)
+{
+    <div class="alert alert-warning" role="alert">@message</div>
+}
+
+@if (attempts.Count > 0)
+{
+    <p>
+        Опити: <strong>@attempts.Count</strong>,
+        под 2 s: <strong>@attempts.Count(a => a.Elapsed < Target)</strong>,
+        медиана: <strong>@Median().TotalMilliseconds.ToString("0") ms</strong>
+    </p>
+    <table class="table table-sm">
+        <thead>
+            <tr><th>#</th><th>Време</th><th>Дължина</th><th>Начало</th></tr>
+        </thead>
+        <tbody>
+            @for (var i = attempts.Count - 1; i >= 0; i--)
+            {
+                var attempt = attempts[i];
+                <tr class="@(attempt.Elapsed < Target ? "" : "table-warning")">
+                    <td>@(i + 1)</td>
+                    <td>@attempt.Elapsed.TotalMilliseconds.ToString("0") ms</td>
+                    <td>@attempt.Value.Length</td>
+                    <td><code>@attempt.Value[..Math.Min(12, attempt.Value.Length)]</code></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-link px-0" @onclick="() => attempts.Clear()">Изчисти</button>
+}
+
+@code {
+    private static readonly TimeSpan Target = TimeSpan.FromSeconds(2);
+
+    private readonly List<Attempt> attempts = [];
+    private string? message;
+    private bool busy;
+
+    private async Task ScanAsync()
+    {
+        busy = true;
+        message = null;
+        try
+        {
+            var outcome = await Scanner.ScanAsync();
+            switch (outcome.Status)
+            {
+                case ScanStatus.Scanned:
+                    attempts.Add(new Attempt(outcome.Value ?? string.Empty, outcome.Elapsed));
+                    break;
+                case ScanStatus.PermissionDenied:
+                    message = "Няма разрешение за камерата. Разрешете го от настройките на телефона.";
+                    break;
+            }
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+
+    private TimeSpan Median()
+    {
+        var sorted = attempts.Select(a => a.Elapsed).Order().ToList();
+        var middle = sorted.Count / 2;
+        return sorted.Count % 2 == 1 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+    }
+
+    private sealed record Attempt(string Value, TimeSpan Elapsed);
+}

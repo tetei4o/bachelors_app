@@ -1,0 +1,51 @@
+@page "/settings"
+@inject ApiSettings ServerSettings
+@inject AuthSession Session
+@inject NavigationManager NavigationManager
+
+<PageTitle>Настройки</PageTitle>
+
+<h1 class="h4 mt-3 mb-3">Настройки</h1>
+
+<div class="mb-3">
+    <label for="server" class="form-label">Адрес на сървъра</label>
+    <input id="server" class="form-control" inputmode="url" @bind="serverUrl" />
+    <div class="form-text">Емулатор: http://10.0.2.2:5056/. Телефон: IP адресът на компютъра в същата мрежа.</div>
+    @if (message is not null)
+    {
+        <div class="small mt-1 @(saved ? "text-success" : "text-danger")">@message</div>
+    }
+</div>
+<button class="btn btn-primary" @onclick="Save">Запази</button>
+
+<AuthorizeView>
+    <hr class="my-4" />
+    <p class="small text-body-secondary">Влезли сте като @context.User.Identity?.Name.</p>
+    <button class="btn btn-outline-danger" @onclick="LogoutAsync">Изход</button>
+</AuthorizeView>
+
+<p class="small text-body-secondary mt-4">Версия @AppInfo.Current.VersionString</p>
+
+@code {
+    private string serverUrl = string.Empty;
+    private string? message;
+    private bool saved;
+
+    protected override void OnInitialized() => serverUrl = ServerSettings.Value;
+
+    private void Save()
+    {
+        saved = ServerSettings.TrySet(serverUrl, out var error);
+        message = saved ? "Запазено." : error;
+        if (saved)
+        {
+            serverUrl = ServerSettings.Value;
+        }
+    }
+
+    private async Task LogoutAsync()
+    {
+        await Session.LogoutAsync();
+        NavigationManager.NavigateTo("login", replace: true);
+    }
+}

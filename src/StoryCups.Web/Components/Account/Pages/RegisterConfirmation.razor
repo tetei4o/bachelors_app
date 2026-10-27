@@ -1,0 +1,25 @@
+@page "/Account/RegisterConfirmation"
+
+@inject IWebHostEnvironment Environment
+
+<PageTitle>Потвърдете имейла</PageTitle>
+
+<h1 class="h3">Почти готово</h1>
+<p role="alert">
+    Изпратихме писмо за потвърждение@(string.IsNullOrEmpty(Email) ? "" : $" на {Email}").
+    Отворете връзката в него, за да активирате акаунта.
+</p>
+<p>Не е пристигнало? Проверете папката за нежелана поща или <a href="Account/ResendEmailConfirmation">поискайте ново писмо</a>.</p>
+
+@if (Environment.IsDevelopment())
+{
+    <p class="alert alert-info small">
+        Режим за разработка: писмата не излизат навън, а се виждат в Mailpit на <a href="http://localhost:8025" target="_blank">http://localhost:8025</a>.
+    </p>
+}
+
+@code {
+    // Страницата не проверява дали имейлът съществува, за да не издава кои адреси имат акаунт.
+    [SupplyParameterFromQuery]
+    private string? Email { get; set; }
+}

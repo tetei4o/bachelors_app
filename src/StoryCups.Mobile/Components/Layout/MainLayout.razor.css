@@ -1,0 +1,26 @@
+.sc-tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    background-color: var(--sc-coffee-dark);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.sc-tabbar ::deep .sc-tab {
+    flex: 1;
+    text-align: center;
+    padding: 0.85rem 0.5rem;
+    color: #fff;
+    text-decoration: none;
+}
+
+.sc-tabbar ::deep .sc-tab.active {
+    color: var(--sc-accent);
+    font-weight: 600;
+}
+
+main {
+    padding-bottom: 5rem;
+}

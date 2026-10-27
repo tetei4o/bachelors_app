@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StoryCups.Application/StoryCups.Application.csproj" />
+    <Project Path="src/StoryCups.Contracts/StoryCups.Contracts.csproj" />
+    <Project Path="src/StoryCups.Domain/StoryCups.Domain.csproj" />
+    <Project Path="src/StoryCups.Infrastructure/StoryCups.Infrastructure.csproj" />
+    <Project Path="src/StoryCups.Mobile/StoryCups.Mobile.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="src/StoryCups.Shared/StoryCups.Shared.csproj" />
+    <Project Path="src/StoryCups.Web/StoryCups.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/StoryCups.IntegrationTests/StoryCups.IntegrationTests.csproj" />
+    <Project Path="tests/StoryCups.UnitTests/StoryCups.UnitTests.csproj" />
+  </Folder>
+</Solution>

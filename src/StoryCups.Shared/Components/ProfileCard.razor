@@ -1,0 +1,30 @@
+@* Общ компонент за сайта и мобилното приложение (ADR-003). Данните идват отвън. *@
+
+<div class="card sc-card">
+    <div class="card-body d-flex align-items-center gap-3">
+        <div class="sc-avatar" aria-hidden="true">@Profile.Initials</div>
+        <div>
+            <h2 class="h5 mb-1">@Profile.DisplayName</h2>
+            <div class="text-body-secondary small">@Profile.Email</div>
+            <div class="mt-2">
+                @foreach (var role in Profile.Roles)
+                {
+                    <span class="badge sc-badge me-1">@RoleLabel(role)</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProfileDto Profile { get; set; } = default!;
+
+    private static string RoleLabel(string role) => role switch
+    {
+        "Customer" => "Клиент",
+        "Barista" => "Бариста",
+        "Admin" => "Администратор",
+        _ => role,
+    };
+}

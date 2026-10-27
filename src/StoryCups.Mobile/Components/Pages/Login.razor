@@ -1,0 +1,86 @@
+@page "/login"
+@using System.ComponentModel.DataAnnotations
+@inject AuthSession Session
+@inject ApiSettings ServerSettings
+@inject NavigationManager NavigationManager
+
+<PageTitle>Вход</PageTitle>
+
+<h1 class="h4 mt-3 mb-3">Вход</h1>
+
+@if (error is not null)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+<EditForm Model="input" OnValidSubmit="LoginAsync">
+    <DataAnnotationsValidator />
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="input.Email" id="email" type="email" class="form-control" autocomplete="username" placeholder="name@example.com" />
+        <label for="email">Имейл</label>
+        <ValidationMessage For="() => input.Email" />
+    </div>
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="input.Password" id="password" type="password" class="form-control" autocomplete="current-password" placeholder="парола" />
+        <label for="password">Парола</label>
+        <ValidationMessage For="() => input.Password" />
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg w-100" disabled="@busy">
+        @(busy ? "Влизане..." : "Вход")
+    </button>
+</EditForm>
+
+<p class="mt-4 small text-body-secondary">
+    Нямате акаунт? Регистрирайте се на сайта: <a href="#" @onclick="OpenRegistrationAsync" @onclick:preventDefault>отвори</a>.
+</p>
+<p class="small"><a href="settings">Адрес на сървъра</a></p>
+
+@code {
+    private readonly InputModel input = new();
+    private string? error;
+    private bool busy;
+
+    private async Task LoginAsync()
+    {
+        busy = true;
+        error = null;
+        try
+        {
+            error = await Session.LoginAsync(input.Email, input.Password);
+            if (error is null)
+            {
+                NavigationManager.NavigateTo("profile", replace: true);
+            }
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            error = "Няма връзка със сървъра. Проверете интернета или адреса в настройките.";
+        }
+        catch (InvalidOperationException)
+        {
+            error = "Задайте адреса на сървъра в настройките.";
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+
+    private async Task OpenRegistrationAsync()
+    {
+        if (ServerSettings.BaseUri is { } baseUri)
+        {
+            await Browser.Default.OpenAsync(new Uri(baseUri, "Account/Register"), BrowserLaunchMode.SystemPreferred);
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "Имейлът е задължителен.")]
+        [EmailAddress(ErrorMessage = "Невалиден имейл.")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Паролата е задължителна.")]
+        public string Password { get; set; } = string.Empty;
+    }
+}
