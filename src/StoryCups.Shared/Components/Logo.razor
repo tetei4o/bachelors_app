@@ -1,10 +1,13 @@
 @* Логото на Story Cups като SVG в страницата (ADR-014). Общ компонент за сайта и приложението. *@
 
-<svg class="sc-logo @CssClass" viewBox="0 0 710 710" width="@Size" height="@Size"
+<svg class="sc-logo @CssClass" viewBox="@(MarkOnly ? "114 112 488 488" : "0 0 710 710")" width="@Size" height="@Size"
      role="@(Decorative ? null : "img")" aria-hidden="@(Decorative ? "true" : null)" aria-label="@(Decorative ? null : "Story Cups")"
      focusable="false" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="355" cy="355" r="355" fill="#55705C" />
-    <g fill="none" stroke="#C2B39D" stroke-width="34" stroke-linejoin="round">
+    @if (!MarkOnly)
+    {
+        <circle cx="355" cy="355" r="355" fill="#55705C" />
+    }
+    <g fill="none" stroke="@(MarkOnly ? "currentColor" : "#C2B39D")" stroke-width="34" stroke-linejoin="round">
         <path d="M353 149H304A51.25 51.25 0 0 0 304 251.5H379A51.75 51.75 0 0 1 379 355H226.5V431A80 80 0 0 0 306.5 511H405.5A80 80 0 0 0 485.5 431V355H549A40 40 0 0 1 554 434.7" />
         <path d="M229 562H483" />
     </g>
@@ -18,6 +21,10 @@
     /// <summary>true, когато до логото има текст с името и екранният четец не трябва да го чете два пъти.</summary>
     [Parameter]
     public bool Decorative { get; set; }
+
+    /// <summary>Само знакът (S и чаша) без кръга, в цвета на текста (currentColor). За печатите в картата.</summary>
+    [Parameter]
+    public bool MarkOnly { get; set; }
 
     [Parameter]
     public string? CssClass { get; set; }

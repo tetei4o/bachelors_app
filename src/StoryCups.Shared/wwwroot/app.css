@@ -1,6 +1,6 @@
 /* Обща тема за сайта и мобилното приложение (ADR-014). */
 
-/* Manrope (SIL OFL 1.1, виж fonts/OFL.txt), на собствения сървър, без външни заявки. */
+/* Шрифтове (SIL OFL 1.1, виж fonts/OFL-*.txt), на собствения сървър, без външни заявки. */
 @font-face {
     font-family: "Manrope";
     font-style: normal;
@@ -21,39 +21,64 @@
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* Unbounded: широк геометричен шрифт като надписа на етикета на Cold Brew. Само за заглавия. */
+@font-face {
+    font-family: "Unbounded";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 900;
+    src: url("fonts/unbounded-cyrillic-wght-normal.woff2") format("woff2-variations"),
+         url("fonts/unbounded-cyrillic-wght-normal.woff2") format("woff2");
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+    font-family: "Unbounded";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 900;
+    src: url("fonts/unbounded-latin-wght-normal.woff2") format("woff2-variations"),
+         url("fonts/unbounded-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /*
- * Цветове от логото и профила в Instagram. Контраст по WCAG 2.2 (текст върху фон):
- * ink/cream 14.3, cream/charcoal 14.3, beige/charcoal 7.9, white/sage-dark 6.9,
- * sage-dark/cream 6.1, muted/cream 5.5, sage-light/charcoal 6.3, cream/sage 4.8.
+ * Цветове от логото и снимките в Instagram (ADR-014). Контраст по WCAG 2.2 (текст върху фон):
+ * ink/porcelain 14.0, cream/charcoal 14.3, beige/charcoal 7.9, white/sage-dark 6.9,
+ * sage-dark/porcelain 6.0, muted/porcelain 5.4, sage-light/charcoal 6.3, cream/sage 4.8.
  */
 :root {
     --sc-charcoal: #1E2124;
-    --sc-charcoal-soft: #2A2E31;
+    --sc-charcoal-line: rgba(194, 179, 157, 0.22);
     --sc-sage: #55705C;
     --sc-sage-dark: #46604D;
     --sc-sage-deep: #3E5545;
     --sc-sage-light: #8FA894;
     --sc-beige: #C2B39D;
     --sc-cream: #F5F0E8;
+    --sc-porcelain: #EFEFE9;
     --sc-paper: #FFFFFF;
     --sc-ink: #1E2124;
+    --sc-ink-line: rgba(30, 33, 36, 0.16);
     --sc-muted: #5C625E;
     --sc-muted-on-dark: #A9A196;
     --sc-danger: #9C3B2E;
     --sc-font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --sc-font-display: "Unbounded", var(--sc-font);
 
     --bs-body-font-family: var(--sc-font);
     --bs-body-color: var(--sc-ink);
     --bs-body-color-rgb: 30, 33, 36;
-    --bs-body-bg: var(--sc-cream);
+    --bs-body-bg: var(--sc-porcelain);
     --bs-emphasis-color: var(--sc-ink);
     --bs-secondary-color: var(--sc-muted);
     --bs-link-color: var(--sc-sage-dark);
     --bs-link-color-rgb: 70, 96, 77;
     --bs-link-hover-color: var(--sc-sage-deep);
     --bs-link-hover-color-rgb: 62, 85, 69;
-    --bs-border-radius: 0.625rem;
-    --bs-border-radius-lg: 0.875rem;
+    --bs-border-color: var(--sc-ink-line);
+    --bs-border-radius: 0.5rem;
+    --bs-border-radius-lg: 0.75rem;
     --bs-focus-ring-color: rgba(70, 96, 77, 0.45);
 
     --maui-status-bar-safe-area-background: var(--sc-charcoal);
@@ -62,7 +87,7 @@
 html, body {
     font-family: var(--sc-font);
     color: var(--sc-ink);
-    background-color: var(--sc-cream);
+    background-color: var(--sc-porcelain);
 }
 
 body {
@@ -87,10 +112,26 @@ button, input, select, textarea {
     flex: 1 0 auto;
 }
 
-h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .display-6, .navbar-brand {
+/* Типография: Unbounded за h1 и h2, Manrope за останалото. Скала 1.25. */
+h1, h2, .h1, .h2, .sc-display, .sc-section-title {
+    font-family: var(--sc-font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+h1.h3, h2.h3 {
+    font-size: 1.75rem;
+}
+
+h3, h4, h5, h6, .h3, .h4, .h5, .h6, .navbar-brand {
     font-weight: 800;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
+    letter-spacing: -0.005em;
+    line-height: 1.25;
+}
+
+h3, .h3 {
+    font-size: 1.25rem;
 }
 
 a, .btn-link {
@@ -127,10 +168,10 @@ a:hover, .btn-link:hover {
 .btn-outline-secondary {
     --bs-btn-color: var(--sc-ink);
     --bs-btn-border-color: var(--sc-ink);
-    --bs-btn-hover-color: var(--sc-cream);
+    --bs-btn-hover-color: var(--sc-porcelain);
     --bs-btn-hover-bg: var(--sc-ink);
     --bs-btn-hover-border-color: var(--sc-ink);
-    --bs-btn-active-color: var(--sc-cream);
+    --bs-btn-active-color: var(--sc-porcelain);
     --bs-btn-active-bg: var(--sc-ink);
     --bs-btn-active-border-color: var(--sc-ink);
 }
@@ -151,10 +192,11 @@ a:hover, .btn-link:hover {
 .btn:focus-visible, .btn-link.nav-link:focus-visible, .nav-link:focus-visible, .navbar-brand:focus-visible,
 .form-control:focus, .form-check-input:focus, a:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 0.125rem var(--sc-cream), 0 0 0 0.3rem var(--sc-sage-dark);
+    box-shadow: 0 0 0 0.125rem var(--sc-porcelain), 0 0 0 0.3rem var(--sc-sage-dark);
 }
 
 .form-control {
+    background-color: var(--sc-paper);
     border-color: #8A8F8B;
 }
 
@@ -169,7 +211,7 @@ a:hover, .btn-link:hover {
 
 .alert-info {
     --bs-alert-color: var(--sc-ink);
-    --bs-alert-bg: #E4EBE3;
+    --bs-alert-bg: #E1E7DF;
     --bs-alert-border-color: #C9D6C9;
 }
 
@@ -181,6 +223,7 @@ a:hover, .btn-link:hover {
 .sc-navbar {
     background-color: var(--sc-charcoal);
     padding-block: 0.75rem;
+    border-bottom: 1px solid var(--sc-charcoal-line);
 }
 
 .sc-nav {
@@ -250,7 +293,7 @@ a:hover, .btn-link:hover {
     display: block;
 }
 
-/* Тъмни секции: начало, менюто, долната лента */
+/* Тъмни секции: начало, меню, адрес, долна лента */
 .sc-dark {
     background-color: var(--sc-charcoal);
     color: var(--sc-cream);
@@ -272,161 +315,379 @@ a:hover, .btn-link:hover {
     color: var(--sc-muted-on-dark);
 }
 
-.sc-eyebrow {
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--sc-sage-dark);
-}
-
-.sc-dark .sc-eyebrow {
-    color: var(--sc-beige);
-}
-
-.sc-hero {
-    padding-block: 3.5rem 4rem;
-}
-
-.sc-hero h1 {
-    font-size: clamp(2.25rem, 6vw, 3.75rem);
-    color: var(--sc-cream);
-}
-
-.sc-hero .lead {
-    color: var(--sc-cream);
-    max-width: 36rem;
-}
-
-/* Карта в стила на етикета на Cold Brew: шалвия, светъл текст. */
-.sc-label {
-    background-color: var(--sc-sage);
-    color: var(--sc-cream);
-    border-radius: 1.25rem;
-    padding: 2rem;
-}
-
-.sc-label .sc-label-title {
-    font-size: clamp(2rem, 5vw, 2.75rem);
-    font-weight: 800;
-    line-height: 1.05;
-    text-transform: uppercase;
-}
-
 .sc-section {
-    padding-block: 3.5rem;
+    padding-block: clamp(3rem, 7vw, 5.5rem);
 }
 
 .sc-section-title {
-    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    margin-bottom: 1.25rem;
 }
 
-/* Менюто: като дъската в кафенето. */
-.sc-menu-board {
-    background-color: var(--sc-charcoal);
+.sc-dark .sc-section-title {
+    color: var(--sc-beige);
+}
+
+/* Начало: името и картата с печати */
+.sc-hero {
+    padding-block: clamp(2.5rem, 7vw, 5rem) clamp(1rem, 3vw, 2rem);
+}
+
+.sc-hero-grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+@media (min-width: 992px) {
+    .sc-hero-grid {
+        grid-template-columns: minmax(0, 1fr) 26rem;
+        gap: 4rem;
+    }
+}
+
+.sc-display {
+    font-size: clamp(2.75rem, 9vw, 5.5rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+    color: var(--sc-beige);
+    margin-bottom: 1.5rem;
+}
+
+.sc-lead {
+    font-size: 1.25rem;
+    line-height: 1.55;
+    max-width: 34rem;
+    margin-bottom: 2rem;
+}
+
+/*
+ * Картата с печати. Ръбът е перфориран като пощенска марка (плакатът на кафенето за pop-up събитие):
+ * фонът е шалвия с прозрачни кръгове, а вътрешността се запълва от ::before.
+ */
+.sc-stamp-card {
+    --hole: 0.4rem;
+    --step: 1.25rem;
+    position: relative;
+    margin: 0;
+    padding: calc(var(--step) / 2 + 1.5rem);
     color: var(--sc-cream);
-    border-radius: 1.25rem;
-    padding: 1.5rem 1.25rem;
+    background:
+        radial-gradient(circle at center, transparent var(--hole), var(--sc-sage) calc(var(--hole) + 0.5px))
+        calc(var(--step) / -2) calc(var(--step) / -2) / var(--step) var(--step) round;
+    max-width: 26rem;
+}
+
+.sc-stamp-card::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--step) / 2);
+    background-color: var(--sc-sage);
+}
+
+.sc-stamp-card > * {
+    position: relative;
+}
+
+.sc-stamp-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--sc-cream);
+    margin-bottom: 1.5rem;
+}
+
+.sc-stamp-card-head .sc-logo {
+    color: var(--sc-beige);
+}
+
+.sc-stamp-grid {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.9rem;
+}
+
+.sc-stamp {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px dashed var(--sc-cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sc-stamp.is-stamped {
+    border: 2px solid var(--sc-beige);
+    background-color: var(--sc-beige);
+    color: var(--sc-sage-deep);
+}
+
+/* Печатите са леко накриво, както при удар с гумен печат. */
+.sc-stamp.is-stamped:nth-child(4n + 1) { transform: rotate(-9deg); }
+.sc-stamp.is-stamped:nth-child(4n + 2) { transform: rotate(6deg); }
+.sc-stamp.is-stamped:nth-child(4n + 3) { transform: rotate(-3deg); }
+.sc-stamp.is-stamped:nth-child(4n + 4) { transform: rotate(11deg); }
+
+.sc-stamp .sc-logo {
+    width: 62%;
+    height: 62%;
+}
+
+.sc-stamp-card-caption {
+    font-family: var(--sc-font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    white-space: pre-line;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--sc-cream);
+}
+
+/* Единственото движение без действие на посетителя: печатите се удрят един след друг. */
+@media (prefers-reduced-motion: no-preference) {
+    .sc-stamp-card-animate .sc-stamp.is-stamped {
+        animation: sc-stamp-press 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+    }
+
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(1) { animation-delay: 300ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(2) { animation-delay: 450ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(3) { animation-delay: 600ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(4) { animation-delay: 750ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(5) { animation-delay: 900ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(6) { animation-delay: 1050ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(7) { animation-delay: 1200ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(8) { animation-delay: 1350ms; }
+}
+
+@keyframes sc-stamp-press {
+    from {
+        opacity: 0;
+        scale: 1.6;
+    }
+
+    to {
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+/* Меню: като дъската в кафенето */
+.sc-menu {
+    padding-top: clamp(2rem, 5vw, 4rem);
+}
+
+.sc-menu-grid {
+    display: grid;
+    gap: 2rem;
+}
+
+@media (min-width: 992px) {
+    .sc-menu-grid {
+        grid-template-columns: 18rem minmax(0, 40rem);
+        gap: 4rem;
+    }
+}
+
+.sc-menu-extras-title {
+    font-size: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--sc-cream);
+}
+
+.sc-menu-extras {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--sc-muted-on-dark);
+}
+
+.sc-menu-extras .sc-price {
+    color: var(--sc-cream);
+    white-space: nowrap;
 }
 
 .sc-menu-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    column-gap: 3rem;
-}
-
-@media (min-width: 992px) {
-    .sc-menu-board {
-        padding: 2.25rem 2.5rem;
-    }
-
-    .sc-menu-list {
-        grid-template-columns: 1fr 1fr;
-    }
 }
 
 .sc-menu-item {
     display: grid;
-    grid-template-columns: 1fr auto 4.75rem;
+    grid-template-columns: minmax(0, 1fr) auto 5.25rem;
     align-items: baseline;
-    gap: 0.75rem;
-    padding-block: 0.55rem;
-    border-bottom: 1px solid rgba(194, 179, 157, 0.18);
+    column-gap: 1rem;
 }
 
 .sc-menu-name {
-    font-weight: 800;
-    font-size: 1.1rem;
+    font-family: var(--sc-font-display);
+    font-weight: 600;
+    font-size: clamp(1rem, 2.4vw, 1.3rem);
+    letter-spacing: -0.01em;
+    padding-block: 0.45rem;
 }
 
 .sc-menu-volume {
     color: var(--sc-muted-on-dark);
-    font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
 
-.sc-menu-price {
-    text-align: right;
-    font-weight: 700;
+.sc-price {
     font-variant-numeric: tabular-nums;
+}
+
+/* Без отстояние между редовете, за да е линията пред цените непрекъсната. */
+.sc-menu-price {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-weight: 700;
     white-space: nowrap;
     border-left: 1px solid var(--sc-cream);
-    padding-left: 0.75rem;
 }
 
-/* Стъпки и сравнението „без профил / с профил“ */
-.sc-card {
-    background-color: var(--sc-paper);
-    border: none;
-    border-radius: 1rem;
-    box-shadow: 0 0.25rem 1rem rgba(30, 33, 36, 0.08);
-}
-
-.sc-step-number {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background-color: var(--sc-sage-dark);
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    margin-bottom: 0.75rem;
-}
-
-.sc-check-list {
+/* Как работи картата */
+.sc-steps {
     list-style: none;
+    counter-reset: sc-step;
+    margin: 0 0 clamp(2.5rem, 6vw, 4rem);
     padding: 0;
-    margin: 0;
+    display: grid;
+    gap: 2rem;
 }
 
-.sc-check-list li {
-    position: relative;
-    padding-left: 1.75rem;
+@media (min-width: 768px) {
+    .sc-steps {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2.5rem;
+    }
+}
+
+.sc-steps li {
+    counter-increment: sc-step;
+    border-top: 2px solid var(--sc-ink);
+    padding-top: 1rem;
+}
+
+.sc-steps li::before {
+    content: counter(sc-step);
+    display: block;
+    font-family: var(--sc-font-display);
+    font-weight: 700;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: var(--sc-sage-dark);
+    margin-bottom: 1rem;
+}
+
+.sc-steps h3 {
     margin-bottom: 0.4rem;
 }
 
-.sc-check-list li::before {
-    content: "";
-    position: absolute;
-    left: 0.2rem;
-    top: 0.55em;
-    width: 0.65rem;
-    height: 0.65rem;
-    border-radius: 50%;
-    background-color: var(--sc-sage);
+.sc-steps p {
+    margin: 0;
+    color: var(--sc-muted);
+    max-width: 22rem;
 }
 
-.sc-card-account {
-    background-color: var(--sc-sage-dark);
-    color: #fff;
+.sc-account {
+    display: grid;
+    gap: 1.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--sc-ink-line);
 }
 
-.sc-card-account .sc-check-list li::before {
-    background-color: var(--sc-beige);
+@media (min-width: 992px) {
+    .sc-account {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 4rem;
+    }
+}
+
+.sc-account p {
+    max-width: 30rem;
+}
+
+.sc-account-list {
+    padding-left: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.sc-account-list li::marker {
+    color: var(--sc-sage-dark);
+}
+
+/* Посетете ни */
+.sc-visit-grid {
+    display: grid;
+    gap: 2.5rem;
+}
+
+@media (min-width: 992px) {
+    .sc-visit-grid {
+        grid-template-columns: minmax(0, 1fr) 24rem;
+        gap: 4rem;
+        align-items: end;
+    }
+}
+
+.sc-address {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.75rem;
+}
+
+.sc-address-street {
+    font-family: var(--sc-font-display);
+    font-weight: 600;
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    line-height: 1.2;
+    color: var(--sc-cream);
+}
+
+.sc-hours-title {
+    font-size: 1rem;
+    color: var(--sc-cream);
+    margin-bottom: 0.5rem;
+}
+
+.sc-hours {
+    margin: 0;
+}
+
+.sc-hours > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 8rem;
+}
+
+.sc-hours dt {
+    font-weight: 600;
+    color: var(--sc-muted-on-dark);
+    padding-block: 0.35rem;
+}
+
+.sc-hours dd {
+    margin: 0;
+    padding-left: 1rem;
+    border-left: 1px solid var(--sc-cream);
+    display: flex;
+    align-items: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Карти извън началната страница (профил) */
+.sc-card {
+    background-color: var(--sc-paper);
+    border: 1px solid var(--sc-ink-line);
+    border-radius: 0.75rem;
 }
 
 .sc-avatar {
@@ -452,12 +713,12 @@ a:hover, .btn-link:hover {
 .sc-footer {
     padding-block: 2.5rem;
     font-size: 0.9rem;
-    border-top: 1px solid rgba(194, 179, 157, 0.18);
+    border-top: 1px solid var(--sc-charcoal-line);
 }
 
 .content {
-    padding-top: 1.5rem;
-    padding-bottom: 2.5rem;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
 }
 
 h1:focus {

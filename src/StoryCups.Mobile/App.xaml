@@ -7,7 +7,7 @@
             <!-- Същите цветове като в StoryCups.Shared/wwwroot/app.css (ADR-014). -->
             <Color x:Key="Charcoal">#1E2124</Color>
             <Color x:Key="SageDark">#46604D</Color>
-            <Color x:Key="Cream">#F5F0E8</Color>
+            <Color x:Key="Porcelain">#EFEFE9</Color>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

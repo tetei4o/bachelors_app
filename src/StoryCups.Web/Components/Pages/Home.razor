@@ -8,158 +8,126 @@
 <PageTitle>@CafeInfo.Name</PageTitle>
 
 <HeadContent>
-    <meta name="description" content="Story Cups Specialty Coffee, София: меню с цени и дигитална карта за лоялност с QR код." />
+    <meta name="description" content="Story Cups Specialty Coffee, @CafeInfo.Address, @CafeInfo.City: меню с цени и дигитална карта за лоялност с QR код." />
 </HeadContent>
 
 <section class="sc-dark sc-hero" aria-labelledby="hero-title">
-    <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-7">
-                <p class="sc-eyebrow mb-3">Specialty coffee · @CafeInfo.City</p>
-                <h1 id="hero-title" class="mb-3">Story Cups</h1>
-                <p class="lead mb-4">
-                    Specialty кафе в @CafeInfo.City. Менюто и информацията за кафенето са отворени за всички,
-                    а профил ви трябва само за дигиталната карта за лоялност.
-                </p>
-                <div class="d-flex flex-wrap gap-2">
-                    <a class="btn btn-primary btn-lg" href="#menu">Вижте менюто</a>
-                    <a class="btn btn-sc-on-dark btn-lg" href="#loyalty">Как работи картата</a>
-                </div>
-            </div>
-            <div class="col-lg-5">
-                <div class="sc-label">
-                    <Logo Size="56" Decorative="true" CssClass="mb-4" />
-                    <p class="sc-label-title mb-3">8 печата<br />= 1 напитка</p>
-                    <p class="mb-0">Събирайте печати с QR код от телефона си. На всеки 8 печата получавате една безплатна напитка.</p>
-                </div>
+    <div class="container sc-hero-grid">
+        <div class="sc-hero-text">
+            <h1 id="hero-title" class="sc-display">Story Cups</h1>
+            <p class="sc-lead">
+                Specialty кафе на @CafeInfo.Address в @CafeInfo.City. Менюто е отворено за всички,
+                а с профил събирате печати за безплатна напитка.
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary btn-lg" href="#menu">Вижте менюто</a>
+                <a class="btn btn-sc-on-dark btn-lg" href="#loyalty">Как работи картата</a>
             </div>
         </div>
+        <StampCard Required="CafeInfo.StampsForReward" Stamped="5" Animate="true"
+                   Caption="@($"{CafeInfo.StampsForReward} печата =\n1 безплатна напитка")"
+                   AriaLabel="@($"Пример за карта: 5 от {CafeInfo.StampsForReward} печата")" />
     </div>
 </section>
 
-<section id="menu" class="sc-section" aria-labelledby="menu-title">
-    <div class="container">
-        <p class="sc-eyebrow mb-2">Coffee menu</p>
-        <h2 id="menu-title" class="sc-section-title mb-2">Меню</h2>
-        <p class="text-body-secondary mb-4">Цени в евро, по менюто в кафенето към @CafeInfo.MenuCheckedOn.</p>
-
-        <div class="sc-menu-board">
-            <ul class="sc-menu-list">
-                @foreach (var drink in CafeMenu.Drinks)
-                {
-                    <li class="sc-menu-item">
-                        <span class="sc-menu-name">@drink.Name</span>
-                        <span class="sc-menu-volume">@drink.VolumeMl ml</span>
-                        <span class="sc-menu-price">@CafeMenu.FormatPrice(drink.PriceEur)</span>
-                    </li>
-                }
-            </ul>
-            <ul class="list-unstyled mt-4 mb-0 small">
+<section id="menu" class="sc-dark sc-section sc-menu" aria-labelledby="menu-title">
+    <div class="container sc-menu-grid">
+        <div class="sc-menu-intro">
+            <h2 id="menu-title" class="sc-section-title">Меню</h2>
+            <p class="sc-muted">Цени в евро, по менюто в кафенето към @CafeInfo.MenuCheckedOn.</p>
+            <h3 class="sc-menu-extras-title">Добавки</h3>
+            <ul class="sc-menu-extras">
                 @foreach (var extra in CafeMenu.Extras)
                 {
-                    <li>@extra.Description: +@CafeMenu.FormatPrice(extra.PriceEur)</li>
+                    <li><span>@extra.Description</span> <span class="sc-price">+@CafeMenu.FormatPrice(extra.PriceEur)</span></li>
                 }
             </ul>
         </div>
+        @* Като дъската в кафенето: име, обем и цена зад една непрекъсната вертикална линия. *@
+        <ul class="sc-menu-list">
+            @foreach (var drink in CafeMenu.Drinks)
+            {
+                <li class="sc-menu-item">
+                    <span class="sc-menu-name">@drink.Name</span>
+                    <span class="sc-menu-volume">@drink.VolumeMl ml</span>
+                    <span class="sc-menu-price sc-price">@CafeMenu.FormatPrice(drink.PriceEur)</span>
+                </li>
+            }
+        </ul>
     </div>
 </section>
 
-<section id="loyalty" class="sc-section pt-0" aria-labelledby="loyalty-title">
+<section id="loyalty" class="sc-section sc-loyalty" aria-labelledby="loyalty-title">
     <div class="container">
-        <p class="sc-eyebrow mb-2">Карта за лоялност</p>
-        <h2 id="loyalty-title" class="sc-section-title mb-4">Печати вместо хартиена карта</h2>
+        <h2 id="loyalty-title" class="sc-section-title">Как работи картата</h2>
 
-        <ol class="row g-3 list-unstyled mb-5">
-            <li class="col-md-4">
-                <div class="card sc-card h-100">
-                    <div class="card-body">
-                        <span class="sc-step-number" aria-hidden="true">1</span>
-                        <h3 class="h5">Създайте профил</h3>
-                        <p class="mb-0">Нужни са имейл, парола и име за показване.</p>
-                    </div>
-                </div>
+        <ol class="sc-steps">
+            <li>
+                <h3>Създайте профил</h3>
+                <p>Нужни са имейл, парола и име за показване.</p>
             </li>
-            <li class="col-md-4">
-                <div class="card sc-card h-100">
-                    <div class="card-body">
-                        <span class="sc-step-number" aria-hidden="true">2</span>
-                        <h3 class="h5">Покажете QR кода</h3>
-                        <p class="mb-0">Баристата го сканира при поръчка. Кодът се сменя на всяка минута.</p>
-                    </div>
-                </div>
+            <li>
+                <h3>Покажете QR кода</h3>
+                <p>Баристата го сканира при поръчка. Кодът се сменя на всяка минута.</p>
             </li>
-            <li class="col-md-4">
-                <div class="card sc-card h-100">
-                    <div class="card-body">
-                        <span class="sc-step-number" aria-hidden="true">3</span>
-                        <h3 class="h5">Вземете наградата</h3>
-                        <p class="mb-0">След 8 печата баристата отбелязва безплатна напитка.</p>
-                    </div>
-                </div>
+            <li>
+                <h3>Вземете наградата</h3>
+                <p>След @CafeInfo.StampsForReward печата баристата отбелязва безплатна напитка.</p>
             </li>
         </ol>
 
-        <div class="row g-3">
-            <div class="col-md-6">
-                <div class="card sc-card h-100">
-                    <div class="card-body p-4">
-                        <h3 class="h5 mb-3">Без профил</h3>
-                        <ul class="sc-check-list">
-                            <li>Менюто и цените</li>
-                            <li>Как работи картата за лоялност</li>
-                            <li>Къде да ни намерите</li>
-                        </ul>
-                    </div>
-                </div>
+        <div class="sc-account">
+            <div>
+                <h3>Профилът е по желание</h3>
+                <p class="mb-0">Менюто, адресът и работното време са тук за всички. Профил ви трябва само за картата.</p>
             </div>
-            <div class="col-md-6">
-                <div class="card sc-card sc-card-account h-100">
-                    <div class="card-body p-4">
-                        <h3 class="h5 mb-3">С профил</h3>
-                        <ul class="sc-check-list mb-4">
-                            <li>Личен QR код за печатите</li>
-                            <li>Прогрес до следващата безплатна напитка и история</li>
-                            <li>Отстъпки и специални оферти</li>
-                        </ul>
-                        <AuthorizeView>
-                            <Authorized>
-                                <a class="btn btn-light" href="profile">Към моя профил</a>
-                            </Authorized>
-                            <NotAuthorized>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <a class="btn btn-light" href="Account/Register">Регистрация</a>
-                                    <a class="btn btn-outline-light" href="Account/Login">Вход</a>
-                                </div>
-                            </NotAuthorized>
-                        </AuthorizeView>
-                    </div>
-                </div>
+            <div>
+                <ul class="sc-account-list">
+                    <li>Личен QR код за печатите</li>
+                    <li>Прогрес до безплатната напитка и история</li>
+                    <li>Отстъпки и специални оферти</li>
+                </ul>
+                <AuthorizeView>
+                    <Authorized>
+                        <a class="btn btn-primary" href="profile">Към моя профил</a>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a class="btn btn-primary" href="Account/Register">Регистрация</a>
+                            <a class="btn btn-outline-secondary" href="Account/Login">Вход</a>
+                        </div>
+                    </NotAuthorized>
+                </AuthorizeView>
             </div>
         </div>
     </div>
 </section>
 
 <section id="visit" class="sc-dark sc-section" aria-labelledby="visit-title">
-    <div class="container">
-        <p class="sc-eyebrow mb-2">Посетете ни</p>
-        <h2 id="visit-title" class="sc-section-title mb-4">@CafeInfo.Name</h2>
-        <dl class="row mb-4">
-            <dt class="col-sm-3 col-lg-2 sc-muted fw-semibold">Адрес</dt>
-            <dd class="col-sm-9 col-lg-10">@CafeInfo.Address, @CafeInfo.City</dd>
-            <dt class="col-sm-3 col-lg-2 sc-muted fw-semibold">Работно време</dt>
-            <dd class="col-sm-9 col-lg-10">
-                <ul class="list-unstyled mb-0">
-                    @foreach (var entry in CafeInfo.Hours)
-                    {
-                        <li>@entry.Days: @entry.Hours</li>
-                    }
-                </ul>
-            </dd>
-        </dl>
-        <div class="d-flex flex-wrap gap-2">
-            @* Само връзки: вградена карта или профил би изпратил данни на посетителя към Google и Meta без съгласие (ADR-013). *@
-            <a class="btn btn-primary" href="@CafeInfo.MapsUrl" rel="noopener noreferrer" target="_blank">Отворете в Google Maps<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
-            <a class="btn btn-sc-on-dark" href="@CafeInfo.InstagramUrl" rel="noopener noreferrer" target="_blank">Instagram<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
+    <div class="container sc-visit-grid">
+        <div>
+            <h2 id="visit-title" class="sc-section-title">Посетете ни</h2>
+            <p class="sc-address">
+                <span class="sc-address-street">@CafeInfo.Address</span>
+                <span class="sc-muted">@CafeInfo.City</span>
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                @* Само връзки: вградена карта или профил би изпратил данни на посетителя към Google и Meta без съгласие (ADR-013). *@
+                <a class="btn btn-primary" href="@CafeInfo.MapsUrl" rel="noopener noreferrer" target="_blank">Отворете в Google Maps<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
+                <a class="btn btn-sc-on-dark" href="@CafeInfo.InstagramUrl" rel="noopener noreferrer" target="_blank">Instagram<span class="visually-hidden"> (отваря се в нов раздел)</span></a>
+            </div>
+        </div>
+        <div>
+            <h3 class="sc-hours-title">Работно време</h3>
+            <dl class="sc-hours">
+                @foreach (var entry in CafeInfo.Hours)
+                {
+                    <div>
+                        <dt>@entry.Days</dt>
+                        <dd>@entry.Hours</dd>
+                    </div>
+                }
+            </dl>
         </div>
     </div>
 </section>

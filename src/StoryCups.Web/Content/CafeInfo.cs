@@ -28,6 +28,12 @@ public static class CafeInfo
         new("Неделя", "почивен ден"),
     ];
 
+    /// <summary>
+    /// Печати за една безплатна напитка, само за текстовете на публичната страница.
+    /// Истинското правило е настройка в базата (среза за правилата).
+    /// </summary>
+    public const int StampsForReward = 8;
+
     /// <summary>Кога цените в <see cref="CafeMenu"/> са сверени с менюто в кафенето.</summary>
     public const string MenuCheckedOn = "[ПОПЪЛНИ: дата на проверка]";
 }
