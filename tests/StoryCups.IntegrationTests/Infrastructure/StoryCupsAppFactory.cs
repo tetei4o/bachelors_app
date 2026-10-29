@@ -41,6 +41,9 @@ public class StoryCupsAppFactory : WebApplicationFactory<Program>, IAsyncLifetim
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
+        // Файловете от RCL (_content/StoryCups.Shared/...) се намират по манифеста само в Development;
+        // тук се включват изрично, за да се проверява, че страниците сочат към съществуващи файлове.
+        builder.UseStaticWebAssets();
         builder.UseSetting("ConnectionStrings:Default", postgres.GetConnectionString());
         builder.UseSetting("Jwt:SigningKey", Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
         builder.UseSetting("App:PublicBaseUrl", "http://localhost/");

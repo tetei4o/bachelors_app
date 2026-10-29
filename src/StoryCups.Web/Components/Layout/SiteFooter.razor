@@ -2,12 +2,13 @@
 
 <footer class="sc-dark sc-footer">
     <div class="container sc-footer-grid">
+        @* Вертикалното (основно) лого, защото тук има място; поне 120 px широко и със свободно поле около него (насоките, ADR-014). *@
         <div class="sc-footer-brand">
-            <Logo Size="44" Decorative="true" />
-            <div>
-                <div class="fw-bold">@CafeInfo.Name</div>
-                <div class="sc-muted">@CafeInfo.Address, @CafeInfo.City</div>
-            </div>
+            <Logo Variant="LogoVariant.PrimaryWhite" Height="96" />
+            <p class="sc-footer-address">
+                <span>@CafeInfo.Address</span>
+                <span class="sc-muted">@CafeInfo.City</span>
+            </p>
         </div>
 
         @* Само връзки към профилите, без вградени публикации (ADR-013). *@

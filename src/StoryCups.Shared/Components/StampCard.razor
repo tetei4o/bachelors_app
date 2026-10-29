@@ -1,8 +1,9 @@
-@* Картата с печати (ADR-014): на началната страница като пример, в профила по-късно с истинските данни. *@
+@* Картата с печати (ADR-014): на началната страница като пример, в профила по-късно с истинските данни.
+   Знакът е в одобрените двойки от насоките: Latte art върху Green bean (горе) и Green bean върху Latte art (печатите). *@
 
 <figure class="sc-stamp-card @(Animate ? "sc-stamp-card-animate" : null)">
     <div class="sc-stamp-card-head">
-        <Logo Size="32" MarkOnly="true" Decorative="true" />
+        <Logo Variant="LogoVariant.SymbolLatte" Height="32" Decorative="true" />
         <span>Карта за лоялност</span>
     </div>
     <ol class="sc-stamp-grid" role="img" aria-label="@(AriaLabel ?? $"{Math.Min(Stamped, Required)} от {Required} печата")">
@@ -11,7 +12,7 @@
             <li class="@(i < Stamped ? "sc-stamp is-stamped" : "sc-stamp")" aria-hidden="true">
                 @if (i < Stamped)
                 {
-                    <Logo Size="28" MarkOnly="true" Decorative="true" />
+                    <Logo Variant="LogoVariant.SymbolGreen" Height="28" Decorative="true" />
                 }
             </li>
         }

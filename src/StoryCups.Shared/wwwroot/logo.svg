@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 710" width="710" height="710">
-    <title>Story Cups</title>
-    <!-- Векторно копие на логото от профила на кафенето в Instagram (ADR-014). -->
-    <circle cx="355" cy="355" r="355" fill="#55705C" />
-    <g fill="none" stroke="#C2B39D" stroke-width="34" stroke-linejoin="round">
-        <path d="M353 149H304A51.25 51.25 0 0 0 304 251.5H379A51.75 51.75 0 0 1 379 355H226.5V431A80 80 0 0 0 306.5 511H405.5A80 80 0 0 0 485.5 431V355H549A40 40 0 0 1 554 434.7" />
-        <path d="M229 562H483" />
-    </g>
-</svg>

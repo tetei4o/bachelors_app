@@ -41,6 +41,20 @@ public sealed class PublicSiteTests(StoryCupsAppFactory app)
         Assert.Contains("Facebook (отваря се в нов раздел)", html);
     }
 
+    [Theory]
+    [InlineData("logo-secondary-white.svg")]
+    [InlineData("logo-primary-white.svg")]
+    public async Task Home_UsesOfficialLogoFilesThatAreServed(string file)
+    {
+        // Официалните файлове от собственика (ADR-014): страницата ги ползва и сървърът ги връща.
+        var html = await client.GetStringAsync("/");
+        Assert.Contains($"_content/StoryCups.Shared/brand/{file}", html);
+
+        var asset = await client.GetAsync($"/_content/StoryCups.Shared/brand/{file}");
+        Assert.Equal(HttpStatusCode.OK, asset.StatusCode);
+        Assert.Equal("image/svg+xml", asset.Content.Headers.ContentType?.MediaType);
+    }
+
     [Fact]
     public async Task Privacy_Anonymous_IsStaticPage()
     {
