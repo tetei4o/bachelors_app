@@ -10,11 +10,13 @@
     <link rel="stylesheet" href="@Assets["_content/StoryCups.Shared/app.css"]" />
     <link rel="stylesheet" href="@Assets["StoryCups.Web.styles.css"]" />
     <ImportMap />
-    <link rel="icon" type="image/png" href="@Assets["_content/StoryCups.Shared/favicon.png"]" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/svg+xml" href="@Assets["_content/StoryCups.Shared/brand/favicon.svg"]" />
+    <link rel="icon" type="image/png" href="@Assets["_content/StoryCups.Shared/brand/favicon.png"]" />
     <HeadOutlet @rendermode="PageRenderMode" />
 </head>
 
-<body>
+<body class="sc-site">
     <Routes @rendermode="PageRenderMode" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>

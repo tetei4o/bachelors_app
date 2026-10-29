@@ -1,0 +1,41 @@
+@* Картата с печати (ADR-014): на началната страница като пример, в профила по-късно с истинските данни.
+   Знакът е в одобрените двойки от насоките: Latte art върху Green bean (горе) и Green bean върху Latte art (печатите). *@
+
+<figure class="sc-stamp-card @(Animate ? "sc-stamp-card-animate" : null)">
+    <div class="sc-stamp-card-head">
+        <Logo Variant="LogoVariant.SymbolLatte" Height="32" Decorative="true" />
+        <span>Карта за лоялност</span>
+    </div>
+    <ol class="sc-stamp-grid" role="img" aria-label="@(AriaLabel ?? $"{Math.Min(Stamped, Required)} от {Required} печата")">
+        @for (var i = 0; i < Required; i++)
+        {
+            <li class="@(i < Stamped ? "sc-stamp is-stamped" : "sc-stamp")" aria-hidden="true">
+                @if (i < Stamped)
+                {
+                    <Logo Variant="LogoVariant.SymbolGreen" Height="28" Decorative="true" />
+                }
+            </li>
+        }
+    </ol>
+    <figcaption class="sc-stamp-card-caption">@Caption</figcaption>
+</figure>
+
+@code {
+    /// <summary>Колко места има картата (правилото по подразбиране е 8).</summary>
+    [Parameter, EditorRequired]
+    public int Required { get; set; }
+
+    [Parameter]
+    public int Stamped { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Caption { get; set; } = string.Empty;
+
+    /// <summary>Текст за екранен четец вместо „N от M печата“.</summary>
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    /// <summary>Печатите се „удрят“ един след друг при зареждане (без движение при prefers-reduced-motion).</summary>
+    [Parameter]
+    public bool Animate { get; set; }
+}

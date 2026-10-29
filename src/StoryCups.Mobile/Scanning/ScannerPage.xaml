@@ -17,7 +17,7 @@
         <Label Grid.Row="0"
                Text="Насочете камерата към QR кода на клиента"
                TextColor="White"
-               BackgroundColor="#803E271B"
+               BackgroundColor="#CC000000"
                Padding="12"
                HorizontalOptions="Fill"
                VerticalOptions="Start"
@@ -26,7 +26,7 @@
         <Button Grid.Row="1"
                 Text="Отказ"
                 Margin="16"
-                BackgroundColor="{StaticResource CoffeeDark}"
+                BackgroundColor="{StaticResource GreenBean}"
                 TextColor="White"
                 Clicked="OnCancelClicked" />
     </Grid>

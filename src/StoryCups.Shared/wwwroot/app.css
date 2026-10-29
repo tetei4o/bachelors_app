@@ -1,73 +1,803 @@
-/* Обща тема за сайта и мобилното приложение. */
+/* Обща тема за сайта и мобилното приложение (ADR-014). */
+
+/*
+ * Шрифтът на марката е TT Firs Neue (платен). Вместо него: Geologica (SIL OFL 1.1, виж fonts/OFL-Geologica.txt),
+ * най-близкият свободен шрифт с кирилица по пропорции (ADR-014). На собствения сървър, без външни заявки.
+ */
+@font-face {
+    font-family: "Geologica";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 100 900;
+    src: url("fonts/geologica-cyrillic-wght-normal.woff2") format("woff2-variations"),
+         url("fonts/geologica-cyrillic-wght-normal.woff2") format("woff2");
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+    font-family: "Geologica";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 100 900;
+    src: url("fonts/geologica-latin-wght-normal.woff2") format("woff2-variations"),
+         url("fonts/geologica-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * Цветовете от насоките за марката (ADR-014): Black coffee, Green bean, Latte art (основни),
+ * Forest green, Oat milk (допълнителни) и техните светли нюанси 80/50/30 %.
+ * Контраст по WCAG 2.2 (текст върху фон): black/oat 16.1, oat/black 16.1, latte/black 10.4,
+ * green-50/black 10.0, black-80/oat 9.7, white/green 5.5, forest/oat 6.3, black-50/black 5.3,
+ * oat/green 4.25 (само за голям текст в картата с печати).
+ */
 :root {
-    --sc-ink: #1f1a17;
-    --sc-coffee: #5b3a29;
-    --sc-coffee-dark: #3e271b;
-    --sc-cream: #f6f1ea;
-    --sc-accent: #c8873a;
-    --maui-status-bar-safe-area-background: var(--sc-coffee-dark);
+    --sc-black: #000000;
+    --sc-green: #4A7159;
+    --sc-latte: #C7B49C;
+    --sc-forest: #32573F;
+    --sc-oat: #E6E2CF;
+    --sc-white: #FFFFFF;
+    --sc-black-80: #333333;
+    --sc-black-50: #808080;
+    --sc-green-50: #A4B8AC;
+    --sc-green-30: #C9D4CD;
+    --sc-line-dark: rgba(199, 180, 156, 0.28);
+    --sc-line-light: rgba(0, 0, 0, 0.16);
+    --sc-danger: #9C3B2E;
+    --sc-font: "Geologica", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    --bs-body-font-family: var(--sc-font);
+    --bs-body-color: var(--sc-black);
+    --bs-body-color-rgb: 0, 0, 0;
+    --bs-body-bg: var(--sc-oat);
+    --bs-emphasis-color: var(--sc-black);
+    --bs-secondary-color: var(--sc-black-80);
+    --bs-link-color: var(--sc-forest);
+    --bs-link-color-rgb: 50, 87, 63;
+    --bs-link-hover-color: var(--sc-black);
+    --bs-link-hover-color-rgb: 0, 0, 0;
+    --bs-border-color: var(--sc-line-light);
+    --bs-border-radius: 0.5rem;
+    --bs-border-radius-lg: 0.75rem;
+    --bs-focus-ring-color: rgba(50, 87, 63, 0.45);
+
+    --maui-status-bar-safe-area-background: var(--sc-black);
 }
 
 html, body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: var(--sc-ink);
-    background-color: var(--sc-cream);
+    font-family: var(--sc-font);
+    color: var(--sc-black);
+    background-color: var(--sc-oat);
+}
+
+body {
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    /* Стандартните кирилски форми; българските (locl за lang="bg") се включват с "locl" 1. */
+    font-feature-settings: "locl" 0;
+}
+
+button, input, select, textarea {
+    font-feature-settings: inherit;
+}
+
+/* Сайтът: долната лента стои долу и при къса страница. */
+.sc-site {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.sc-site > main {
+    flex: 1 0 auto;
+}
+
+/*
+ * Типография по насоките: един шрифт, йерархия с дебелината. H1 заглавие (900), H2 подзаглавие (600),
+ * текст (400), призив за действие с главни букви (600). Скала 1.25.
+ */
+h1, h2, .h1, .h2, .sc-display, .sc-section-title {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+h1.h3, h2.h3 {
+    font-size: 1.75rem;
+}
+
+h3, h4, h5, h6, .h3, .h4, .h5, .h6 {
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    line-height: 1.25;
+}
+
+h3, .h3 {
+    font-size: 1.25rem;
 }
 
 a, .btn-link {
-    color: var(--sc-coffee);
+    color: var(--sc-forest);
+    text-underline-offset: 0.2em;
 }
 
+a:hover, .btn-link:hover {
+    color: var(--sc-black);
+}
+
+/* Бутони: призивът за действие от насоките (H4) е с главни букви. */
+.btn {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-radius: 999px;
+    padding-inline: 1.25rem;
+}
+
+/* Бутон, който изглежда като връзка (например „Изход“ в лентата), не е призив за действие. */
+.btn-link {
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* Green bean се вижда и върху Oat milk (4,25:1), и върху Black coffee (3,8:1); текстът е бял (5,5:1). */
 .btn-primary {
-    color: #fff;
-    background-color: var(--sc-coffee);
-    border-color: var(--sc-coffee-dark);
+    --bs-btn-color: var(--sc-white);
+    --bs-btn-bg: var(--sc-green);
+    --bs-btn-border-color: var(--sc-green);
+    --bs-btn-hover-color: var(--sc-white);
+    --bs-btn-hover-bg: var(--sc-forest);
+    --bs-btn-hover-border-color: var(--sc-forest);
+    --bs-btn-active-color: var(--sc-white);
+    --bs-btn-active-bg: var(--sc-forest);
+    --bs-btn-active-border-color: var(--sc-forest);
+    --bs-btn-disabled-color: var(--sc-white);
+    --bs-btn-disabled-bg: var(--sc-green);
+    --bs-btn-disabled-border-color: var(--sc-green);
 }
 
-.btn-primary:hover, .btn-primary:focus {
-    background-color: var(--sc-coffee-dark);
-    border-color: var(--sc-coffee-dark);
+.btn-outline-secondary {
+    --bs-btn-color: var(--sc-black);
+    --bs-btn-border-color: var(--sc-black);
+    --bs-btn-hover-color: var(--sc-oat);
+    --bs-btn-hover-bg: var(--sc-black);
+    --bs-btn-hover-border-color: var(--sc-black);
+    --bs-btn-active-color: var(--sc-oat);
+    --bs-btn-active-bg: var(--sc-black);
+    --bs-btn-active-border-color: var(--sc-black);
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--sc-accent);
+/* Бутон с контур върху тъмен фон. */
+.btn-sc-on-dark {
+    --bs-btn-color: var(--sc-latte);
+    --bs-btn-border-color: var(--sc-latte);
+    --bs-btn-hover-color: var(--sc-black);
+    --bs-btn-hover-bg: var(--sc-latte);
+    --bs-btn-hover-border-color: var(--sc-latte);
+    --bs-btn-active-color: var(--sc-black);
+    --bs-btn-active-bg: var(--sc-latte);
+    --bs-btn-active-border-color: var(--sc-latte);
 }
 
+/* Видим фокус от клавиатура: двоен пръстен, работи и върху светъл, и върху тъмен фон. */
+.btn:focus-visible, .btn-link.nav-link:focus-visible, .nav-link:focus-visible, .navbar-brand:focus-visible,
+.form-control:focus, .form-check-input:focus, a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.125rem var(--sc-oat), 0 0 0 0.3rem var(--sc-forest);
+}
+
+.form-control {
+    background-color: var(--sc-white);
+    border-color: var(--sc-black-50);
+}
+
+.form-control:focus {
+    border-color: var(--sc-forest);
+}
+
+.form-check-input:checked {
+    background-color: var(--sc-green);
+    border-color: var(--sc-green);
+}
+
+.alert-info {
+    --bs-alert-color: var(--sc-black);
+    --bs-alert-bg: var(--sc-green-30);
+    --bs-alert-border-color: var(--sc-green-50);
+}
+
+.text-danger, .validation-message {
+    color: var(--sc-danger) !important;
+}
+
+/* Горна лента. Свободното поле около логото е поне 0,32 от височината му (насоките): 14 px при 40 px. */
 .sc-navbar {
-    background-color: var(--sc-coffee-dark);
+    background-color: var(--sc-black);
+    padding-block: 0.875rem;
+    border-bottom: 1px solid var(--sc-line-dark);
 }
 
-.sc-navbar .navbar-brand, .sc-navbar .nav-link, .sc-navbar .btn-link {
-    color: #fff;
+.sc-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
+.sc-nav .navbar-brand {
+    margin-right: auto;
+}
+
+.sc-nav-sections, .sc-nav-account {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* На тесен екран: лого и вход на първия ред, секциите на втори. */
+@media (max-width: 767.98px) {
+    .sc-nav-sections {
+        order: 3;
+        width: 100%;
+        margin-inline: -0.5rem;
+    }
+}
+
+/* На широк екран профилът е отделен с линия точно по средата между двете групи. */
+@media (min-width: 768px) {
+    .sc-nav-account {
+        margin-left: 0.5rem;
+        padding-left: 0.5rem;
+        border-left: 1px solid var(--sc-line-dark);
+    }
+}
+
+.sc-navbar .navbar-brand {
+    padding-block: 0;
+    margin-right: auto;
+    border-radius: 0.25rem;
+}
+
+.sc-navbar .nav-link, .sc-navbar .btn-link {
+    color: var(--sc-oat);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 0.5rem;
+}
+
+.sc-navbar .nav-link:hover, .sc-navbar .btn-link:hover {
+    color: var(--sc-latte);
+}
+
+.sc-navbar .nav-link.active {
+    color: var(--sc-latte);
+    text-decoration: underline;
+    text-decoration-color: var(--sc-green-50);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.4em;
+}
+
+.sc-navbar .nav-link:focus-visible, .sc-navbar .btn-link:focus-visible, .sc-navbar .navbar-brand:focus-visible {
+    box-shadow: 0 0 0 0.125rem var(--sc-black), 0 0 0 0.3rem var(--sc-latte);
+}
+
+.sc-logo {
+    flex-shrink: 0;
+    display: block;
+}
+
+/* Тъмни секции: начало, меню, адрес, долна лента */
+.sc-dark {
+    background-color: var(--sc-black);
+    color: var(--sc-oat);
+}
+
+.sc-dark a:not(.btn) {
+    color: var(--sc-green-50);
+}
+
+.sc-dark a:not(.btn):hover {
+    color: var(--sc-latte);
+}
+
+.sc-dark a:focus-visible, .sc-dark .btn:focus-visible {
+    box-shadow: 0 0 0 0.125rem var(--sc-black), 0 0 0 0.3rem var(--sc-latte);
+}
+
+.sc-dark .sc-muted {
+    color: var(--sc-black-50);
+}
+
+.sc-section {
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+}
+
+.sc-section-title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    margin-bottom: 1.5rem;
+}
+
+.sc-dark .sc-section-title {
+    color: var(--sc-latte);
+}
+
+/* Начало: името и картата с печати */
+.sc-hero {
+    padding-block: clamp(2.5rem, 7vw, 5rem) clamp(1rem, 3vw, 2rem);
+}
+
+.sc-hero-grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+@media (min-width: 992px) {
+    .sc-hero-grid {
+        grid-template-columns: minmax(0, 1fr) 26rem;
+        gap: 4rem;
+    }
+}
+
+.sc-display {
+    font-size: clamp(2.75rem, 8vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--sc-latte);
+    margin-bottom: 1.5rem;
+}
+
+/* Подзаглавието (H2 в насоките): 600. */
+.sc-lead {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.5;
+    max-width: 34rem;
+    margin-bottom: 2rem;
+}
+
+/*
+ * Картата с печати. Ръбът е перфориран като пощенска марка (плакатът на кафенето за pop-up събитие):
+ * фонът е Green bean с прозрачни кръгове, а вътрешността се запълва от ::before.
+ * Oat milk върху Green bean е 4,25:1, затова текстът в картата е голям (от 19 px нагоре, получер).
+ */
+.sc-stamp-card {
+    --hole: 0.4rem;
+    --step: 1.25rem;
+    position: relative;
+    margin: 0;
+    padding: calc(var(--step) / 2 + 1.5rem);
+    color: var(--sc-oat);
+    background:
+        radial-gradient(circle at center, transparent var(--hole), var(--sc-green) calc(var(--hole) + 0.5px))
+        calc(var(--step) / -2) calc(var(--step) / -2) / var(--step) var(--step) round;
+    max-width: 26rem;
+}
+
+.sc-stamp-card::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--step) / 2);
+    background-color: var(--sc-green);
+}
+
+.sc-stamp-card > * {
+    position: relative;
+}
+
+.sc-stamp-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--sc-oat);
+    margin-bottom: 1.5rem;
+}
+
+.sc-stamp-grid {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+.sc-stamp {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px dashed var(--sc-oat);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/*
+ * Печат: знакът в Green bean върху Latte art (одобрена двойка от насоките), без завъртане.
+ * Кантът в Oat milk отделя печата от картата с 4,25:1 (WCAG 1.4.11 иска 3:1).
+ */
+.sc-stamp.is-stamped {
+    border: 2px solid var(--sc-oat);
+    background-color: var(--sc-latte);
+}
+
+/*
+ * Ширината е от колоната (определена), височината следва съотношението на знака: около 58 % от печата.
+ * Центрира се по чинийката, както плочката на стр. 03 от насоките: дръжката излиза вдясно, затова
+ * знакът се измества с 13 % от ширината си ((600,0 − 560,4) / 304,7 в координатите на файла).
+ */
+.sc-stamp .sc-logo {
+    width: 52%;
+    height: auto;
+    translate: 13% 0;
+}
+
+.sc-stamp-card-caption {
+    font-weight: 800;
+    font-size: 1.25rem;
+    white-space: pre-line;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--sc-oat);
+}
+
+/* Единственото движение без действие на посетителя: печатите се удрят един след друг. */
+@media (prefers-reduced-motion: no-preference) {
+    .sc-stamp-card-animate .sc-stamp.is-stamped {
+        animation: sc-stamp-press 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+    }
+
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(1) { animation-delay: 300ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(2) { animation-delay: 450ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(3) { animation-delay: 600ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(4) { animation-delay: 750ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(5) { animation-delay: 900ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(6) { animation-delay: 1050ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(7) { animation-delay: 1200ms; }
+    .sc-stamp-card-animate .sc-stamp.is-stamped:nth-child(8) { animation-delay: 1350ms; }
+}
+
+@keyframes sc-stamp-press {
+    from {
+        opacity: 0;
+        scale: 1.6;
+    }
+
+    to {
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+/* Меню: като дъската в кафенето */
+.sc-menu {
+    padding-top: clamp(2rem, 5vw, 4rem);
+}
+
+.sc-menu-grid {
+    display: grid;
+    gap: 2.5rem;
+}
+
+/* Заглавието „Меню“ и първата напитка стоят на една базова линия. */
+@media (min-width: 992px) {
+    .sc-menu-grid {
+        grid-template-columns: 18rem minmax(0, 40rem);
+        gap: 4rem;
+        align-items: first baseline;
+    }
+}
+
+.sc-menu-extras-title {
+    font-size: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--sc-oat);
+}
+
+.sc-menu-extras {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--sc-black-50);
+}
+
+.sc-menu-extras .sc-price {
+    color: var(--sc-oat);
+    white-space: nowrap;
+}
+
+/*
+ * Линията пред цените е точно по средата: обемът е подравнен вдясно на --sc-rule-gap от нея,
+ * а цената започва на същото разстояние след нея. Редовете ползват колоните на списъка (subgrid),
+ * така че линията е една и съща за всички напитки. Без subgrid остава колона с фиксирана ширина.
+ */
+.sc-menu-list {
+    --sc-rule-gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    column-gap: var(--sc-rule-gap);
+}
+
+.sc-menu-item {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 5.25rem;
+    grid-template-columns: subgrid;
+    align-items: baseline;
+}
+
+.sc-menu-name {
+    font-weight: 700;
+    font-size: clamp(1rem, 2.4vw, 1.3rem);
+    letter-spacing: -0.01em;
+    padding-block: 0.45rem;
+}
+
+.sc-menu-volume {
+    color: var(--sc-black-50);
+    white-space: nowrap;
+    text-align: right;
+}
+
+.sc-price {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Без отстояние между редовете, за да е линията пред цените непрекъсната. */
+.sc-menu-price {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-left: var(--sc-rule-gap);
+    font-weight: 700;
+    white-space: nowrap;
+    border-left: 1px solid var(--sc-oat);
+}
+
+/* Как работи картата */
+.sc-steps {
+    list-style: none;
+    counter-reset: sc-step;
+    margin: 0 0 clamp(2.5rem, 6vw, 4rem);
+    padding: 0;
+    display: grid;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .sc-steps {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2.5rem;
+    }
+}
+
+.sc-steps li {
+    counter-increment: sc-step;
+    border-top: 2px solid var(--sc-black);
+    padding-top: 1rem;
+}
+
+.sc-steps li::before {
+    content: counter(sc-step);
+    display: block;
+    font-weight: 900;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: var(--sc-forest);
+    margin-bottom: 1rem;
+}
+
+.sc-steps h3 {
+    margin-bottom: 0.5rem;
+}
+
+.sc-steps p {
+    margin: 0;
+    color: var(--sc-black-80);
+    max-width: 22rem;
+}
+
+.sc-account {
+    display: grid;
+    gap: 1.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--sc-line-light);
+}
+
+@media (min-width: 992px) {
+    .sc-account {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 4rem;
+    }
+}
+
+.sc-account p {
+    max-width: 30rem;
+}
+
+.sc-account-list {
+    padding-left: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.sc-account-list li::marker {
+    color: var(--sc-forest);
+}
+
+/* Посетете ни */
+.sc-visit-grid {
+    display: grid;
+    gap: 2.5rem;
+}
+
+/* Адресът и „Работно време“ започват на една базова линия; часовете стигат до десния край като картата в началото. */
+@media (min-width: 992px) {
+    .sc-visit-grid {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 4rem;
+        align-items: first baseline;
+    }
+}
+
+/* Както в началото: 2rem от текста до бутоните. */
+.sc-address {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+}
+
+.sc-address-street {
+    font-weight: 800;
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    line-height: 1.2;
+    color: var(--sc-oat);
+}
+
+.sc-hours-title {
+    font-size: 1rem;
+    color: var(--sc-oat);
+    margin-bottom: 0.5rem;
+}
+
+/* Същата линия като в менюто: по средата между дните и часовете. */
+.sc-hours {
+    --sc-rule-gap: 1rem;
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: start;
+    column-gap: var(--sc-rule-gap);
+}
+
+.sc-hours > div {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 11rem auto;
+    grid-template-columns: subgrid;
+}
+
+.sc-hours dt {
+    font-weight: 600;
+    color: var(--sc-black-50);
+    padding-block: 0.35rem;
+}
+
+.sc-hours dd {
+    margin: 0;
+    padding-left: var(--sc-rule-gap);
+    border-left: 1px solid var(--sc-oat);
+    display: flex;
+    align-items: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Карти извън началната страница (профил) */
 .sc-card {
-    border: none;
-    border-radius: 1rem;
-    box-shadow: 0 0.25rem 1rem rgba(31, 26, 23, 0.08);
+    background-color: var(--sc-white);
+    border: 1px solid var(--sc-line-light);
+    border-radius: 0.75rem;
 }
 
 .sc-avatar {
     width: 3.5rem;
     height: 3.5rem;
     border-radius: 50%;
-    background-color: var(--sc-coffee);
+    background-color: var(--sc-forest);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
+    font-weight: 800;
     font-size: 1.25rem;
     flex-shrink: 0;
 }
 
 .sc-badge {
-    background-color: var(--sc-accent);
+    background-color: var(--sc-black);
+    color: var(--sc-latte);
+    font-weight: 700;
+}
+
+/* Долна лента: кафенето и социалните мрежи на първия ред, поверителност и бележка под линия. */
+.sc-footer {
+    padding-block: 2.5rem;
+    font-size: 0.9rem;
+    border-top: 1px solid var(--sc-line-dark);
+}
+
+/* Свободното поле около вертикалното лого е 0,3 от височината му (насоките): 29 px при 96 px, затова 2rem. */
+.sc-footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2rem 1.5rem;
+}
+
+@media (max-width: 575.98px) {
+    .sc-footer-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.sc-footer-brand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2rem;
+}
+
+.sc-footer-address {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.sc-social {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Кръгли бутони с иконите, 44 px за докосване. Селекторът е колкото .sc-dark a:not(.btn) и е след него. */
+.sc-social a.sc-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--sc-latte);
+    color: var(--sc-latte);
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.sc-social a.sc-social-link:hover {
+    background-color: var(--sc-latte);
+    color: var(--sc-black);
+}
+
+.sc-footer-meta {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--sc-line-dark);
 }
 
 .content {
-    padding-top: 1.25rem;
-    padding-bottom: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
 }
 
 h1:focus {
@@ -75,19 +805,15 @@ h1:focus {
 }
 
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+    outline: 1px solid var(--sc-green);
 }
 
 .invalid {
-    outline: 1px solid #e50000;
-}
-
-.validation-message {
-    color: #e50000;
+    outline: 1px solid var(--sc-danger);
 }
 
 .blazor-error-boundary {
-    background-color: #b32121;
+    background-color: var(--sc-danger);
     padding: 1rem;
     color: white;
 }
@@ -97,7 +823,8 @@ h1:focus {
 }
 
 #blazor-error-ui {
-    background: lightyellow;
+    background: #FBF3D9;
+    color: var(--sc-black);
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
     display: none;
@@ -116,7 +843,7 @@ h1:focus {
 }
 
 .darker-border-checkbox.form-check-input {
-    border-color: #929292;
+    border-color: #6F746F;
 }
 
 .sc-qr {
@@ -131,4 +858,14 @@ h1:focus {
     width: 100%;
     height: 100%;
     display: block;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
 }

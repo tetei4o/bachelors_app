@@ -1,0 +1,40 @@
+@* Официалното лого на Story Cups: файловете от собственика (2026-10-29), ADR-014. Само вариантите от
+   насоките за марката, без прекрояване, завъртане и смяна на цвета. Общ компонент за сайта и приложението. *@
+
+<img class="sc-logo @CssClass" src="_content/StoryCups.Shared/brand/@(File).svg"
+     width="@Width" height="@Height" alt="@(Decorative ? string.Empty : AltText)" />
+
+@code {
+    [Parameter, EditorRequired]
+    public LogoVariant Variant { get; set; }
+
+    /// <summary>
+    /// Височина в CSS пиксели. По насоките пълното лого е поне 120 px широко на екран:
+    /// за хоризонталното това е височина от 38 px нагоре, за вертикалното от 90 px.
+    /// </summary>
+    [Parameter]
+    public int Height { get; set; } = 40;
+
+    /// <summary>true, когато до логото има текст с името или то е само украса (печатите в картата).</summary>
+    [Parameter]
+    public bool Decorative { get; set; }
+
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    // Съотношенията са от viewBox на файловете в wwwroot/brand.
+    private (string File, double Ratio, string AltText) Info => Variant switch
+    {
+        LogoVariant.PrimaryWhite => ("logo-primary-white", 833.0 / 622.3, "Story Cups Specialty Coffee"),
+        LogoVariant.SecondaryWhite => ("logo-secondary-white", 1168.6 / 364.5, "Story Cups Specialty Coffee"),
+        LogoVariant.SymbolLatte => ("symbol-latte", 304.7 / 344.3, "Story Cups"),
+        LogoVariant.SymbolGreen => ("symbol-green", 304.7 / 344.3, "Story Cups"),
+        _ => throw new ArgumentOutOfRangeException(nameof(Variant), Variant, null),
+    };
+
+    private string File => Info.File;
+
+    private string AltText => Info.AltText;
+
+    private int Width => (int)Math.Round(Height * Info.Ratio);
+}
