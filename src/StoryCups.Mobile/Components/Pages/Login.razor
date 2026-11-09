@@ -6,7 +6,7 @@
 
 <PageTitle>Вход</PageTitle>
 
-<h1 class="h4 mt-3 mb-3">Вход</h1>
+<h1 class="h3 mb-3">Вход</h1>
 
 @if (error is not null)
 {
@@ -30,10 +30,10 @@
     </button>
 </EditForm>
 
-<p class="mt-4 small text-body-secondary">
-    Нямате акаунт? Регистрирайте се на сайта: <a href="#" @onclick="OpenRegistrationAsync" @onclick:preventDefault>отвори</a>.
-</p>
-<p class="small"><a href="settings">Адрес на сървъра</a></p>
+@* Регистрацията е на сайта (ADR-013); бутонът отваря страницата в браузъра, както в сайта до „Вход“ стои „Регистрация“. *@
+<p class="mt-4 mb-2 text-body-secondary">Нямате акаунт? Регистрацията е на сайта.</p>
+<button type="button" class="btn btn-outline-secondary w-100" @onclick="OpenRegistrationAsync">Регистрация</button>
+<p class="mt-4 small"><a href="settings">Адрес на сървъра</a></p>
 
 @code {
     private readonly InputModel input = new();

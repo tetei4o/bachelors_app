@@ -7,12 +7,14 @@
 
 <PageTitle>Потвърждение на имейла</PageTitle>
 
-<h1 class="h3">Потвърждение на имейла</h1>
-<StatusMessage Message="@statusMessage" />
-@if (confirmed)
-{
-    <p><a class="btn btn-primary" href="Account/Login">Към входа</a></p>
-}
+<div class="sc-narrow">
+    <h1 class="h3 mb-3">Потвърждение на имейла</h1>
+    <StatusMessage Message="@statusMessage" />
+    @if (confirmed)
+    {
+        <div class="sc-actions"><a class="btn btn-primary" href="Account/Login">Към входа</a></div>
+    }
+</div>
 
 @code {
     private string? statusMessage;

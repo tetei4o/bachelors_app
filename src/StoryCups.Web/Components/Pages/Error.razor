@@ -3,15 +3,17 @@
 
 <PageTitle>Грешка</PageTitle>
 
-<h1 class="h3 text-danger">Възникна грешка</h1>
-<p>Заявката не беше обработена. Опитайте отново по-късно.</p>
+<div class="sc-narrow">
+    <h1 class="h3 mb-3">Възникна грешка</h1>
+    <p>Заявката не беше обработена. Опитайте отново по-късно.</p>
 
-@if (ShowRequestId)
-{
-    <p class="small text-body-secondary">
-        Номер на заявката: <code>@RequestId</code>
-    </p>
-}
+    @if (ShowRequestId)
+    {
+        <p class="small text-body-secondary">
+            Номер на заявката: <code>@RequestId</code>
+        </p>
+    }
+</div>
 
 @code {
     [CascadingParameter]
