@@ -1,10 +1,13 @@
+/* Долу като горната лента в сайта: черна, с линия в Latte art към съдържанието. */
 .sc-tabbar {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
+    z-index: 10;
     display: flex;
     background-color: var(--sc-black);
+    border-top: 1px solid var(--sc-line-dark);
     padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -24,5 +27,5 @@
 }
 
 main {
-    padding-bottom: 5rem;
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
 }

@@ -16,37 +16,35 @@
 
 <PageTitle>Вход</PageTitle>
 
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-5">
-        <h1 class="h3 mb-2">Вход</h1>
-        <p class="text-body-secondary mb-3">Профилът е нужен за личния QR код, печатите и отстъпките. Менюто е на <a href="">началната страница</a> и без вход.</p>
-        <StatusMessage Message="@errorMessage" />
-        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label for="Input.Email" class="form-label">Имейл</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="парола" />
-                <label for="Input.Password" class="form-label">Парола</label>
-                <ValidationMessage For="() => Input.Password" class="text-danger" />
-            </div>
-            <div class="form-check mb-3">
-                <InputCheckbox @bind-Value="Input.RememberMe" id="Input.RememberMe" class="darker-border-checkbox form-check-input" />
-                <label for="Input.RememberMe" class="form-check-label">Запомни ме на това устройство</label>
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Вход</button>
-        </EditForm>
-        <div class="mt-3">
-            <p class="mb-1"><a href="Account/ForgotPassword">Забравена парола</a></p>
-            <p class="mb-1">
-                <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Нов акаунт</a>
-            </p>
-            <p class="mb-1"><a href="Account/ResendEmailConfirmation">Ново писмо за потвърждение</a></p>
+<div class="sc-narrow">
+    <h1 class="h3 mb-3">Вход</h1>
+    <p class="text-body-secondary mb-4">Профилът е нужен за личния QR код, печатите и отстъпките. Менюто е на <a href="">началната страница</a> и без вход.</p>
+    <StatusMessage Message="@errorMessage" />
+    <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="alert alert-danger sc-validation-summary" role="alert" />
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+            <label for="Input.Email" class="form-label">Имейл</label>
+            <ValidationMessage For="() => Input.Email" class="text-danger" />
         </div>
+        <div class="form-floating mb-3">
+            <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="парола" />
+            <label for="Input.Password" class="form-label">Парола</label>
+            <ValidationMessage For="() => Input.Password" class="text-danger" />
+        </div>
+        <div class="form-check mb-3">
+            <InputCheckbox @bind-Value="Input.RememberMe" id="Input.RememberMe" class="form-check-input" />
+            <label for="Input.RememberMe" class="form-check-label">Запомни ме на това устройство</label>
+        </div>
+        <button type="submit" class="w-100 btn btn-lg btn-primary">Вход</button>
+    </EditForm>
+    <div class="mt-3">
+        <p class="mb-1"><a href="Account/ForgotPassword">Забравена парола</a></p>
+        <p class="mb-1">
+            <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Нов акаунт</a>
+        </p>
+        <p class="mb-1"><a href="Account/ResendEmailConfirmation">Ново писмо за потвърждение</a></p>
     </div>
 </div>
 

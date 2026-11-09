@@ -8,6 +8,8 @@
             <Color x:Key="BlackCoffee">#000000</Color>
             <Color x:Key="GreenBean">#4A7159</Color>
             <Color x:Key="OatMilk">#E6E2CF</Color>
+            <!-- Black coffee с 80 % непрозрачност: подложка за текст върху образа от камерата. -->
+            <Color x:Key="BlackCoffeeOverlay">#CC000000</Color>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -1,5 +1,30 @@
 /* Стилове само за приложението; общите са в StoryCups.Shared/wwwroot/app.css. */
-body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+
+/*
+ * Под системната лента на телефона е черната горна лента, не фонът на страницата:
+ * отстъпът за изрязването на екрана е в лентата, а не в body (долният е в лентата с разделите).
+ */
+.sc-app-header {
+    padding-top: calc(0.875rem + env(safe-area-inset-top));
+}
+
+/*
+ * Докато Blazor се зарежда: знакът в Latte art върху Black coffee, както splash екрана (ADR-014),
+ * за да няма светъл кадър между splash екрана и черната горна лента.
+ */
+.sc-boot {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--sc-black);
+}
+
+/*
+ * Размерът е като в splash.svg при BaseSize 128 dp (знакът е 50 dp висок), а центърът е по чинийката
+ * като там и в печатите: знакът се измества с 13 % от ширината си.
+ */
+.sc-boot img {
+    translate: 13% 0;
 }

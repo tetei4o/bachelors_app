@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:components="clr-namespace:StoryCups.Mobile.Components"
              x:Class="StoryCups.Mobile.MainPage"
-             BackgroundColor="{StaticResource OatMilk}">
+             BackgroundColor="{StaticResource BlackCoffee}">
 
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>

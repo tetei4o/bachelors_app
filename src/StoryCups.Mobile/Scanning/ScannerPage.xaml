@@ -4,8 +4,9 @@
              xmlns:scanner="clr-namespace:BarcodeScanning;assembly=BarcodeScanning.Native.Maui"
              x:Class="StoryCups.Mobile.Scanning.ScannerPage"
              Title="Сканиране"
-             BackgroundColor="Black">
+             BackgroundColor="{StaticResource BlackCoffee}">
 
+    <!-- Същите цветове като в Blazor частта (ADR-014): Oat milk върху Black coffee, основният бутон в Green bean с бял текст. -->
     <Grid RowDefinitions="*,Auto">
         <scanner:CameraView x:Name="Camera"
                             Grid.Row="0"
@@ -16,15 +17,22 @@
 
         <Label Grid.Row="0"
                Text="Насочете камерата към QR кода на клиента"
-               TextColor="White"
-               BackgroundColor="#CC000000"
-               Padding="12"
+               TextColor="{StaticResource OatMilk}"
+               BackgroundColor="{StaticResource BlackCoffeeOverlay}"
+               FontAttributes="Bold"
+               Padding="16,12"
                HorizontalOptions="Fill"
                VerticalOptions="Start"
                HorizontalTextAlignment="Center" />
 
+        <!-- Като .btn в сайта: заоблен, получер текст с главни букви, поне 48 dp за докосване. -->
         <Button Grid.Row="1"
                 Text="Отказ"
+                TextTransform="Uppercase"
+                FontAttributes="Bold"
+                CharacterSpacing="0.5"
+                CornerRadius="24"
+                MinimumHeightRequest="48"
                 Margin="16"
                 BackgroundColor="{StaticResource GreenBean}"
                 TextColor="White"

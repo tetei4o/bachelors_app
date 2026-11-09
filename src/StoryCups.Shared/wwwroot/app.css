@@ -42,6 +42,7 @@
     --sc-black-50: #808080;
     --sc-green-50: #A4B8AC;
     --sc-green-30: #C9D4CD;
+    --sc-latte-30: #EEE9E1;
     --sc-line-dark: rgba(199, 180, 156, 0.28);
     --sc-line-light: rgba(0, 0, 0, 0.16);
     --sc-danger: #9C3B2E;
@@ -61,6 +62,7 @@
     --bs-border-radius: 0.5rem;
     --bs-border-radius-lg: 0.75rem;
     --bs-focus-ring-color: rgba(50, 87, 63, 0.45);
+    --bs-code-color: var(--sc-forest);
 
     --maui-status-bar-safe-area-background: var(--sc-black);
 }
@@ -180,6 +182,18 @@ a:hover, .btn-link:hover {
     --bs-btn-active-border-color: var(--sc-latte);
 }
 
+/* Действие, което не се връща (изход), в цвета за грешки: бяло върху него е 6,8:1. */
+.btn-outline-danger {
+    --bs-btn-color: var(--sc-danger);
+    --bs-btn-border-color: var(--sc-danger);
+    --bs-btn-hover-color: var(--sc-white);
+    --bs-btn-hover-bg: var(--sc-danger);
+    --bs-btn-hover-border-color: var(--sc-danger);
+    --bs-btn-active-color: var(--sc-white);
+    --bs-btn-active-bg: var(--sc-danger);
+    --bs-btn-active-border-color: var(--sc-danger);
+}
+
 /* Видим фокус от клавиатура: двоен пръстен, работи и върху светъл, и върху тъмен фон. */
 .btn:focus-visible, .btn-link.nav-link:focus-visible, .nav-link:focus-visible, .navbar-brand:focus-visible,
 .form-control:focus, .form-check-input:focus, a:focus-visible {
@@ -187,6 +201,7 @@ a:hover, .btn-link:hover {
     box-shadow: 0 0 0 0.125rem var(--sc-oat), 0 0 0 0.3rem var(--sc-forest);
 }
 
+/* Полетата са бели върху Oat milk; контурът в Black coffee 50 % е 3,9:1 спрямо бялото (WCAG 1.4.11 иска 3:1). */
 .form-control {
     background-color: var(--sc-white);
     border-color: var(--sc-black-50);
@@ -196,19 +211,97 @@ a:hover, .btn-link:hover {
     border-color: var(--sc-forest);
 }
 
+/* Bootstrap слага фона на страницата зад вдигнатия етикет; полето е бяло, затова и фонът зад етикета. */
+.form-floating > .form-control:focus ~ label::after,
+.form-floating > .form-control:not(:placeholder-shown) ~ label::after {
+    background-color: var(--sc-white);
+}
+
+.form-check-input {
+    --bs-form-check-bg: var(--sc-white);
+    border-color: var(--sc-black-50);
+}
+
 .form-check-input:checked {
     background-color: var(--sc-green);
     border-color: var(--sc-green);
 }
 
-.alert-info {
-    --bs-alert-color: var(--sc-black);
-    --bs-alert-bg: var(--sc-green-30);
-    --bs-alert-border-color: var(--sc-green-50);
+/* Грешка в поле: ръбът на полето, без втори контур отвън. */
+.form-control.invalid {
+    border-color: var(--sc-danger);
+}
+
+.form-control.valid.modified {
+    border-color: var(--sc-green);
 }
 
 .text-danger, .validation-message {
     color: var(--sc-danger) !important;
+}
+
+.text-success {
+    color: var(--sc-forest) !important;
+}
+
+/*
+ * Съобщения: фон и тънък ръб, а значението е в лентата отляво. Само цветове от палитрата,
+ * червеното е само за грешки. Black coffee върху Green bean 30 % е 13,8:1, върху Latte art 30 % 17,4:1,
+ * червеното върху бяло 6,8:1, Forest green (връзките) върху Green bean 30 % 5,4:1.
+ */
+.alert {
+    --sc-alert-accent: var(--sc-green);
+    border-left: 0.25rem solid var(--sc-alert-accent);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.alert-info, .alert-success {
+    --bs-alert-color: var(--sc-black);
+    --bs-alert-bg: var(--sc-green-30);
+    --bs-alert-border-color: var(--sc-green-50);
+    --bs-alert-link-color: var(--sc-forest);
+}
+
+.alert-success {
+    --sc-alert-accent: var(--sc-forest);
+}
+
+.alert-warning {
+    --bs-alert-color: var(--sc-black);
+    --bs-alert-bg: var(--sc-latte-30);
+    --bs-alert-border-color: var(--sc-latte);
+    --bs-alert-link-color: var(--sc-forest);
+    --sc-alert-accent: var(--sc-black);
+}
+
+.alert-danger {
+    --bs-alert-color: var(--sc-danger);
+    --bs-alert-bg: var(--sc-white);
+    --bs-alert-border-color: var(--sc-line-light);
+    --bs-alert-link-color: var(--sc-danger);
+    --sc-alert-accent: var(--sc-danger);
+}
+
+/* Обобщението на грешките във формата: същото като съобщение за грешка, със списък. */
+.sc-validation-summary {
+    padding-left: 2.25rem;
+}
+
+.sc-validation-summary li + li {
+    margin-top: 0.25rem;
+}
+
+/* Таблиците са върху фона на страницата; редът за внимание е в Latte art 30 %. */
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--sc-line-light);
+}
+
+.table-warning {
+    --bs-table-color: var(--sc-black);
+    --bs-table-bg: var(--sc-latte-30);
+    --bs-table-border-color: var(--sc-line-light);
 }
 
 /* Горна лента. Свободното поле около логото е поне 0,32 от височината му (насоките): 14 px при 40 px. */
@@ -710,7 +803,7 @@ a:hover, .btn-link:hover {
     height: 3.5rem;
     border-radius: 50%;
     background-color: var(--sc-forest);
-    color: #fff;
+    color: var(--sc-white);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -795,44 +888,73 @@ a:hover, .btn-link:hover {
     border-top: 1px solid var(--sc-line-dark);
 }
 
+/* Вътрешните страници (вход, съобщения, профил, политика) */
 .content {
-    padding-top: 2rem;
-    padding-bottom: 3rem;
+    padding-top: clamp(2rem, 5vw, 3.5rem);
+    padding-bottom: clamp(3rem, 6vw, 4.5rem);
+}
+
+/* Една колона по средата: формите, съобщенията след тях и профилът са с еднаква ширина. */
+.sc-narrow {
+    max-width: 28rem;
+    margin-inline: auto;
+}
+
+/* Бутоните след текст: 2rem от него, както в началото на началната страница. */
+.sc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+/* Дълъг текст: около 75 знака на ред. */
+.sc-prose {
+    max-width: 42rem;
+    margin-inline: auto;
+}
+
+.sc-prose h2 {
+    margin-top: 2rem;
 }
 
 h1:focus {
     outline: none;
 }
 
-.valid.modified:not([type=checkbox]) {
-    outline: 1px solid var(--sc-green);
-}
-
-.invalid {
+/* Отметката и другите полета без собствен ръб получават контур при грешка. */
+.invalid:not(.form-control) {
     outline: 1px solid var(--sc-danger);
+    outline-offset: 1px;
 }
 
 .blazor-error-boundary {
     background-color: var(--sc-danger);
     padding: 1rem;
-    color: white;
+    color: var(--sc-white);
 }
 
 .blazor-error-boundary::after {
     content: "Възникна грешка.";
 }
 
+/* Лентата за неочаквана грешка: Latte art, за да се отличава и от светлите, и от тъмните секции. */
 #blazor-error-ui {
-    background: #FBF3D9;
+    background: var(--sc-latte);
     color: var(--sc-black);
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
     display: none;
     left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    padding: 0.6rem 2.75rem 0.7rem 1.25rem;
     position: fixed;
     width: 100%;
     z-index: 1000;
+    font-weight: 600;
+}
+
+#blazor-error-ui a {
+    color: var(--sc-black);
 }
 
 #blazor-error-ui .dismiss {
@@ -842,14 +964,10 @@ h1:focus {
     top: 0.5rem;
 }
 
-.darker-border-checkbox.form-check-input {
-    border-color: #6F746F;
-}
-
 .sc-qr {
     width: min(18rem, 80vw);
     aspect-ratio: 1;
-    background: #fff;
+    background: var(--sc-white);
     border-radius: 0.75rem;
     padding: 0.5rem;
 }
