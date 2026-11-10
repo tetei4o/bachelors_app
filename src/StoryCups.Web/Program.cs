@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using StoryCups.Contracts;
 using StoryCups.Contracts.Profile;
+using StoryCups.Domain.Identity;
 using StoryCups.Infrastructure;
 using StoryCups.Infrastructure.Auth;
 using StoryCups.Infrastructure.Seeding;
@@ -55,7 +56,15 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(ApiAuthorization.PolicyName, policy => policy
         .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-        .RequireAuthenticatedUser());
+        .RequireAuthenticatedUser())
+    .AddPolicy(ApiAuthorization.CustomerPolicy, policy => policy
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser()
+        .RequireRole(AppRoles.Customer))
+    .AddPolicy(ApiAuthorization.StaffPolicy, policy => policy
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser()
+        .RequireRole(AppRoles.Barista, AppRoles.Admin));
 
 builder.Services.Configure<RateLimitingOptions>(builder.Configuration.GetSection(RateLimitingOptions.SectionName));
 builder.Services.AddRateLimiter(options =>
@@ -64,15 +73,36 @@ builder.Services.AddRateLimiter(options =>
     options.AddPolicy(AuthEndpoints.RateLimitPolicy, context =>
     {
         var permits = context.RequestServices.GetRequiredService<IOptions<RateLimitingOptions>>().Value.AuthPermitsPerMinute;
-        return RateLimitPartition.GetFixedWindowLimiter(
-            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        return PerMinute(context.Connection.RemoteIpAddress?.ToString() ?? "unknown", permits);
+    });
+
+    // Издаването на QR токен се брои по клиент, а сканирането по бариста (ADR-005). Авторизацията вече е минала,
+    // затова потребителят е известен; ключът на дяла е неговият Id от access токена.
+    options.AddPolicy(QrEndpoints.IssueRateLimitPolicy, context =>
+    {
+        var permits = context.RequestServices.GetRequiredService<IOptions<RateLimitingOptions>>().Value.QrTokensPerMinute;
+        return PerMinute(UserPartition(context), permits);
+    });
+    options.AddPolicy(QrEndpoints.ScanRateLimitPolicy, context =>
+    {
+        var permits = context.RequestServices.GetRequiredService<IOptions<RateLimitingOptions>>().Value.ScansPerMinute;
+        return PerMinute(UserPartition(context), permits);
+    });
+
+    static string UserPartition(HttpContext context) =>
+        context.User.TryGetUserId(out var userId)
+            ? userId.ToString()
+            : context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+    static RateLimitPartition<string> PerMinute(string partitionKey, int permits) =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey,
             _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = permits,
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0,
             });
-    });
 });
 
 builder.Services.AddProblemDetails();
@@ -108,6 +138,7 @@ app.MapStaticAssets();
 
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
+app.MapQrEndpoints();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

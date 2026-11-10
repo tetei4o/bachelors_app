@@ -24,6 +24,13 @@ public class StoryCupsAppFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     protected virtual int AuthPermitsPerMinute => 1000;
 
+    protected virtual int QrTokensPerMinute => 1000;
+
+    protected virtual int ScansPerMinute => 1000;
+
+    /// <summary>Връзка към базата в контейнера, за тестове, които работят със собствена база.</summary>
+    public string ConnectionString => postgres.GetConnectionString();
+
     public async Task InitializeAsync()
     {
         await postgres.StartAsync();
@@ -48,7 +55,10 @@ public class StoryCupsAppFactory : WebApplicationFactory<Program>, IAsyncLifetim
         builder.UseSetting("Jwt:SigningKey", Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
         builder.UseSetting("App:PublicBaseUrl", "http://localhost/");
         builder.UseSetting("Database:MigrateOnStartup", "true");
-        builder.UseSetting("RateLimiting:AuthPermitsPerMinute", AuthPermitsPerMinute.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        builder.UseSetting("Qr:Keys:0:Key", Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
+        builder.UseSetting("RateLimiting:AuthPermitsPerMinute", Invariant(AuthPermitsPerMinute));
+        builder.UseSetting("RateLimiting:QrTokensPerMinute", Invariant(QrTokensPerMinute));
+        builder.UseSetting("RateLimiting:ScansPerMinute", Invariant(ScansPerMinute));
 
         builder.ConfigureTestServices(services =>
         {
@@ -58,6 +68,8 @@ public class StoryCupsAppFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddSingleton<IAccountNotifier>(Emails);
         });
     }
+
+    private static string Invariant(int value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }
 
 [CollectionDefinition(Name)]

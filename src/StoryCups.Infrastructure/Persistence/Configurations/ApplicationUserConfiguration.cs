@@ -11,5 +11,10 @@ internal sealed class ApplicationUserConfiguration : IEntityTypeConfiguration<Ap
         builder.Property(u => u.DisplayName)
             .HasMaxLength(ApplicationUser.DisplayNameMaxLength)
             .IsRequired();
+
+        // Стойността идва от приложението (Guid.NewGuid). Подразбирането в базата попълва съществуващите редове
+        // при миграцията и пази колоната от празна стойност при запис извън приложението.
+        builder.Property(u => u.PublicId).HasDefaultValueSql("gen_random_uuid()");
+        builder.HasIndex(u => u.PublicId).IsUnique();
     }
 }

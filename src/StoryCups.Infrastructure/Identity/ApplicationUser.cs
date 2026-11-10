@@ -12,6 +12,12 @@ public sealed class ApplicationUser : IdentityUser<Guid>
     public string DisplayName { get; set; } = string.Empty;
 
     /// <summary>
+    /// Случаен идентификатор (UUID версия 4), който влиза в QR токена вместо Id (ADR-005).
+    /// Id е UUID версия 7 и издава кога е създаден акаунтът; този идентификатор не издава нищо.
+    /// </summary>
+    public Guid PublicId { get; set; } = Guid.NewGuid();
+
+    /// <summary>
     /// Кога потребителят е приел политиката за поверителност. Персоналът няма такава дата.
     /// </summary>
     public DateTimeOffset? PrivacyConsentAt { get; set; }

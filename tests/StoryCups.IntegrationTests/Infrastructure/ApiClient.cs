@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using StoryCups.Contracts;
 using StoryCups.Contracts.Auth;
+using StoryCups.Contracts.Loyalty;
 
 namespace StoryCups.IntegrationTests.Infrastructure;
 
@@ -59,6 +60,55 @@ public static class ApiClient
         var response = await client.LoginAsync(email, password);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return (await response.Content.ReadFromJsonAsync<TokenResponse>())!;
+    }
+
+    /// <summary>
+    /// Заявка с Bearer токен и по желание JSON тяло и заглавие Idempotency-Key.
+    /// </summary>
+    public static Task<HttpResponseMessage> SendAsync(
+        this HttpClient client, HttpMethod method, string path, string? accessToken, object? body = null, string? idempotencyKey = null)
+    {
+        var request = new HttpRequestMessage(method, path);
+        if (accessToken is not null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        }
+
+        if (body is not null)
+        {
+            request.Content = JsonContent.Create(body, body.GetType());
+        }
+
+        if (idempotencyKey is not null)
+        {
+            request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+        }
+
+        return client.SendAsync(request);
+    }
+
+    public static Task<HttpResponseMessage> IssueQrTokenAsync(this HttpClient client, string? accessToken) =>
+        client.SendAsync(HttpMethod.Post, ApiRoutes.Qr.Tokens, accessToken);
+
+    public static async Task<QrTokenResponse> IssueQrTokenOkAsync(this HttpClient client, TestUser customer)
+    {
+        var response = await client.IssueQrTokenAsync(customer.AccessToken);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return (await response.Content.ReadFromJsonAsync<QrTokenResponse>())!;
+    }
+
+    public static Task<HttpResponseMessage> ScanAsync(this HttpClient client, string? accessToken, string token) =>
+        client.SendAsync(HttpMethod.Post, ApiRoutes.Qr.Scans, accessToken, new ScanRequest { Token = token });
+
+    /// <summary>
+    /// Клиентът показва нов код и баристата го сканира успешно.
+    /// </summary>
+    public static async Task<ScanSessionDto> ScanOkAsync(this HttpClient client, TestUser barista, TestUser customer)
+    {
+        var token = await client.IssueQrTokenOkAsync(customer);
+        var response = await client.ScanAsync(barista.AccessToken, token.Token);
+        Assert.True(response.StatusCode == HttpStatusCode.Created, await response.Content.ReadAsStringAsync());
+        return (await response.Content.ReadFromJsonAsync<ScanSessionDto>())!;
     }
 
     public static async Task<string?> ErrorCodeAsync(this HttpResponseMessage response)

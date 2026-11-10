@@ -225,6 +225,77 @@ namespace StoryCups.Infrastructure.Persistence.Migrations
                     b.ToTable("RefreshTokens", (string)null);
                 });
 
+            modelBuilder.Entity("StoryCups.Domain.Loyalty.CustomerAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ActionCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("CustomerAccounts", (string)null);
+                });
+
+            modelBuilder.Entity("StoryCups.Domain.Qr.ScanSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BaristaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("BaristaId");
+
+                    b.ToTable("ScanSessions", (string)null);
+                });
+
+            modelBuilder.Entity("StoryCups.Domain.Qr.UsedQrNonce", b =>
+                {
+                    b.Property<byte[]>("Nonce")
+                        .HasMaxLength(16)
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Nonce")
+                        .HasName("PK_UsedQrNonces");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.ToTable("UsedQrNonces", (string)null);
+                });
+
             modelBuilder.Entity("StoryCups.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -279,6 +350,11 @@ namespace StoryCups.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("PrivacyConsentAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("PublicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -297,6 +373,9 @@ namespace StoryCups.Infrastructure.Persistence.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -358,6 +437,29 @@ namespace StoryCups.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("StoryCups.Domain.Loyalty.CustomerAccount", b =>
+                {
+                    b.HasOne("StoryCups.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("StoryCups.Domain.Qr.ScanSession", b =>
+                {
+                    b.HasOne("StoryCups.Domain.Loyalty.CustomerAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StoryCups.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("BaristaId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

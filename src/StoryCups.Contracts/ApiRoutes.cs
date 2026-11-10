@@ -20,4 +20,13 @@ public static class ApiRoutes
     {
         public const string Me = Root + "/me";
     }
+
+    /// <summary>
+    /// QR токен на клиента и сканиране от баристата (ADR-005, ADR-008).
+    /// </summary>
+    public static class Qr
+    {
+        public const string Tokens = Root + "/qr-tokens";
+        public const string Scans = Root + "/scans";
+    }
 }

@@ -2,14 +2,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using StoryCups.Application.Auth;
 using StoryCups.Application.Profile;
+using StoryCups.Application.Qr;
 using StoryCups.Contracts.Auth;
 using StoryCups.Infrastructure.Auth;
 using StoryCups.Infrastructure.Email;
 using StoryCups.Infrastructure.Identity;
 using StoryCups.Infrastructure.Persistence;
 using StoryCups.Infrastructure.Profile;
+using StoryCups.Infrastructure.Qr;
 using StoryCups.Infrastructure.Seeding;
 
 namespace StoryCups.Infrastructure;
@@ -19,7 +22,7 @@ public static class DependencyInjection
     public const string ConnectionStringName = "Default";
 
     /// <summary>
-    /// Регистрира базата, Identity хранилището, имейла и услугите за токени.
+    /// Регистрира базата, Identity хранилището, имейла, услугите за токени и QR сканирането.
     /// Схемите за автентикация (бисквитка и JWT bearer) се настройват в хоста.
     /// </summary>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
@@ -81,6 +84,17 @@ public static class DependencyInjection
         services.AddSingleton<AccessTokenIssuer>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserProfileReader, UserProfileReader>();
+
+        // QR токен и сканиране (ADR-005, ADR-008).
+        services.AddOptions<QrOptions>()
+            .Bind(configuration.GetSection(QrOptions.SectionName))
+            .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<QrOptions>, QrOptionsValidator>();
+        services.AddSingleton(sp => sp.GetRequiredService<IOptions<QrOptions>>().Value.CreateCodec());
+        services.AddScoped<IQrTokenService, QrTokenService>();
+        services.AddScoped<IScanService, ScanService>();
+        services.AddScoped<UsedNonceCleaner>();
+        services.AddHostedService<UsedNonceCleanupService>();
 
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
         services.Configure<SeedOptions>(configuration.GetSection(SeedOptions.SectionName));

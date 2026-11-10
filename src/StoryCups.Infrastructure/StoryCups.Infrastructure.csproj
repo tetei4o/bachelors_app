@@ -21,4 +21,9 @@
     <ProjectReference Include="..\StoryCups.Domain\StoryCups.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="StoryCups.UnitTests" />
+    <InternalsVisibleTo Include="StoryCups.IntegrationTests" />
+  </ItemGroup>
+
 </Project>
