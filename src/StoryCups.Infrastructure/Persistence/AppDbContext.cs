@@ -19,6 +19,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<ScanSession> ScanSessions => Set<ScanSession>();
 
+    public DbSet<LoyaltySettings> LoyaltySettings => Set<LoyaltySettings>();
+
+    public DbSet<Product> Products => Set<Product>();
+
+    public DbSet<LoyaltyAction> LoyaltyActions => Set<LoyaltyAction>();
+
+    public DbSet<LedgerEntry> LedgerEntries => Set<LedgerEntry>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

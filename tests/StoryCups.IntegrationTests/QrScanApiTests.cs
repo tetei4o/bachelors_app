@@ -280,6 +280,8 @@ public sealed class QrRateLimitedAppFactory : StoryCupsAppFactory
     protected override int QrTokensPerMinute => 3;
 
     protected override int ScansPerMinute => 2;
+
+    protected override int ActionsPerMinute => 2;
 }
 
 public sealed class QrRateLimitTests(QrRateLimitedAppFactory app) : IClassFixture<QrRateLimitedAppFactory>
@@ -315,5 +317,20 @@ public sealed class QrRateLimitTests(QrRateLimitedAppFactory app) : IClassFixtur
         Assert.Equal(HttpStatusCode.TooManyRequests, (await client.ScanAsync(barista.AccessToken, "подправен код")).StatusCode);
 
         Assert.Equal(HttpStatusCode.BadRequest, (await client.ScanAsync(other.AccessToken, "подправен код")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Actions_AreLimitedPerBarista()
+    {
+        var barista = await app.NewStaffAsync(client);
+        var other = await app.NewStaffAsync(client);
+        var request = ApiClient.Purchase((Guid.NewGuid(), 1));
+
+        // Сесията не съществува, но и отказаните действия харчат от лимита.
+        Assert.Equal(HttpStatusCode.NotFound, (await client.SubmitActionAsync(barista, Guid.NewGuid(), request)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.ReverseAsync(barista, Guid.NewGuid())).StatusCode);
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.SubmitActionAsync(barista, Guid.NewGuid(), request)).StatusCode);
+
+        Assert.Equal(HttpStatusCode.NotFound, (await client.SubmitActionAsync(other, Guid.NewGuid(), request)).StatusCode);
     }
 }

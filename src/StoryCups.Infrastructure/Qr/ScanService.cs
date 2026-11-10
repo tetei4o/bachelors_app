@@ -67,11 +67,15 @@ public sealed class ScanService(
             return Failure(LoyaltyErrorCodes.QrAlreadyUsed, "Кодът вече е използван. Помолете клиента да покаже новия код.");
         }
 
+        // Баристата вижда баланса още при сканирането, за да знае има ли налична награда.
+        var balance = await db.GetBalanceAsync(accountId, cancellationToken);
+        var settings = await db.GetLoyaltySettingsAsync(cancellationToken);
         return Result<ScanSessionDto>.Success(new ScanSessionDto(
             session.Id,
             session.ExpiresAt,
             (int)options.Value.ScanSessionLifetime.TotalSeconds,
-            DisplayNames.Initials(customer.DisplayName)));
+            DisplayNames.Initials(customer.DisplayName),
+            new LoyaltyStatusDto(balance.Stamps, balance.Rewards, settings.StampThreshold)));
     }
 
     private static Result<ScanSessionDto> Failure(string code, string message) =>

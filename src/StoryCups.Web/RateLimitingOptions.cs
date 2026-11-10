@@ -16,7 +16,12 @@ internal sealed class RateLimitingOptions
     public int QrTokensPerMinute { get; set; } = 20;
 
     /// <summary>
-    /// Сканирания и действия на един бариста. Ограничава и изпробването на подправени кодове.
+    /// Сканирания на един бариста. Ограничава и изпробването на подправени кодове.
     /// </summary>
     public int ScansPerMinute { get; set; } = 60;
+
+    /// <summary>
+    /// Действия (начисляване, награда, отмяна) на един бариста.
+    /// </summary>
+    public int ActionsPerMinute { get; set; } = 120;
 }

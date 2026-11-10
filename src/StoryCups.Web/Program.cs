@@ -89,6 +89,12 @@ builder.Services.AddRateLimiter(options =>
         return PerMinute(UserPartition(context), permits);
     });
 
+    options.AddPolicy(LoyaltyEndpoints.ActionRateLimitPolicy, context =>
+    {
+        var permits = context.RequestServices.GetRequiredService<IOptions<RateLimitingOptions>>().Value.ActionsPerMinute;
+        return PerMinute(UserPartition(context), permits);
+    });
+
     static string UserPartition(HttpContext context) =>
         context.User.TryGetUserId(out var userId)
             ? userId.ToString()
@@ -139,6 +145,7 @@ app.MapStaticAssets();
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
 app.MapQrEndpoints();
+app.MapLoyaltyEndpoints();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

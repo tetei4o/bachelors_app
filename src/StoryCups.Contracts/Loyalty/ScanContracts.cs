@@ -11,6 +11,7 @@ public sealed class ScanRequest
 }
 
 /// <summary>
-/// Сесия на сканиране (ADR-008). Баристата вижда само инициалите на клиента (A19).
+/// Сесия на сканиране (ADR-008). Баристата вижда само инициалите на клиента и баланса му (A19).
 /// </summary>
-public sealed record ScanSessionDto(Guid Id, DateTimeOffset ExpiresAt, int LifetimeSeconds, string CustomerInitials);
+public sealed record ScanSessionDto(
+    Guid Id, DateTimeOffset ExpiresAt, int LifetimeSeconds, string CustomerInitials, LoyaltyStatusDto Loyalty);

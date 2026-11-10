@@ -28,6 +28,8 @@ public class StoryCupsAppFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     protected virtual int ScansPerMinute => 1000;
 
+    protected virtual int ActionsPerMinute => 1000;
+
     /// <summary>Връзка към базата в контейнера, за тестове, които работят със собствена база.</summary>
     public string ConnectionString => postgres.GetConnectionString();
 
@@ -59,6 +61,7 @@ public class StoryCupsAppFactory : WebApplicationFactory<Program>, IAsyncLifetim
         builder.UseSetting("RateLimiting:AuthPermitsPerMinute", Invariant(AuthPermitsPerMinute));
         builder.UseSetting("RateLimiting:QrTokensPerMinute", Invariant(QrTokensPerMinute));
         builder.UseSetting("RateLimiting:ScansPerMinute", Invariant(ScansPerMinute));
+        builder.UseSetting("RateLimiting:ActionsPerMinute", Invariant(ActionsPerMinute));
 
         builder.ConfigureTestServices(services =>
         {

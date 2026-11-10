@@ -253,6 +253,335 @@ namespace StoryCups.Infrastructure.Persistence.Migrations
                     b.ToTable("CustomerAccounts", (string)null);
                 });
 
+            modelBuilder.Entity("StoryCups.Domain.Loyalty.LedgerEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ActionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("Line")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ReversesEntryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RewardDelta")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StampDelta")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ReversesEntryId")
+                        .IsUnique();
+
+                    b.HasIndex("ActionId", "Line")
+                        .IsUnique();
+
+                    b.ToTable("LedgerEntries", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LedgerEntries_Line", "\"Line\" >= 1");
+
+                            t.HasCheckConstraint("CK_LedgerEntries_NonZero", "\"StampDelta\" <> 0 OR \"RewardDelta\" <> 0");
+                        });
+                });
+
+            modelBuilder.Entity("StoryCups.Domain.Loyalty.LoyaltyAction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ActorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("IdempotencyKey")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .IsFixedLength();
+
+                    b.Property<Guid?>("ReversesActionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RewardsAfter")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("ScanSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StampsAfter")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReversesActionId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_LoyaltyActions_ReversesActionId");
+
+                    b.HasIndex("ScanSessionId");
+
+                    b.HasIndex("AccountId", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("IX_LoyaltyActions_AccountId_Sequence");
+
+                    b.HasIndex("ActorId", "IdempotencyKey")
+                        .IsUnique()
+                        .HasDatabaseName("IX_LoyaltyActions_ActorId_IdempotencyKey");
+
+                    b.ToTable("LoyaltyActions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LoyaltyActions_BalanceAfter", "\"StampsAfter\" >= 0 AND \"RewardsAfter\" >= 0");
+
+                            t.HasCheckConstraint("CK_LoyaltyActions_Reversal", "(\"Type\" = 'Reversal') = (\"ReversesActionId\" IS NOT NULL) AND (\"Type\" = 'Reversal') = (\"Reason\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_LoyaltyActions_Sequence", "\"Sequence\" >= 1");
+                        });
+                });
+
+            modelBuilder.Entity("StoryCups.Domain.Loyalty.LoyaltySettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxStampsPerTransaction")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StampThreshold")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("StampValidityDays")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UndoWindowMinutes")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LoyaltySettings", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LoyaltySettings_MaxStampsPerTransaction", "\"MaxStampsPerTransaction\" >= 1");
+
+                            t.HasCheckConstraint("CK_LoyaltySettings_Singleton", "\"Id\" = 1");
+
+                            t.HasCheckConstraint("CK_LoyaltySettings_StampThreshold", "\"StampThreshold\" >= 1");
+
+                            t.HasCheckConstraint("CK_LoyaltySettings_StampValidityDays", "\"StampValidityDays\" IS NULL OR \"StampValidityDays\" >= 1");
+
+                            t.HasCheckConstraint("CK_LoyaltySettings_UndoWindowMinutes", "\"UndoWindowMinutes\" >= 0");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            MaxStampsPerTransaction = 4,
+                            StampThreshold = 8,
+                            UndoWindowMinutes = 5
+                        });
+                });
+
+            modelBuilder.Entity("StoryCups.Domain.Loyalty.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("EarnsStamp")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("PriceEur")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VolumeMl")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SortOrder");
+
+                    b.ToTable("Products", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Products_PriceEur", "\"PriceEur\" >= 0");
+
+                            t.HasCheckConstraint("CK_Products_VolumeMl", "\"VolumeMl\" >= 1");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-000000000101"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Single Espresso",
+                            PriceEur = 1.50m,
+                            SortOrder = 1,
+                            VolumeMl = 30
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-000000000102"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Double Espresso",
+                            PriceEur = 1.80m,
+                            SortOrder = 2,
+                            VolumeMl = 60
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-000000000103"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Cappuccino",
+                            PriceEur = 2.60m,
+                            SortOrder = 3,
+                            VolumeMl = 240
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-000000000104"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Flat White",
+                            PriceEur = 3.10m,
+                            SortOrder = 4,
+                            VolumeMl = 240
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-000000000105"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Cortado",
+                            PriceEur = 2.90m,
+                            SortOrder = 5,
+                            VolumeMl = 130
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-000000000106"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Latte",
+                            PriceEur = 3.10m,
+                            SortOrder = 6,
+                            VolumeMl = 360
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-000000000107"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Matcha Latte",
+                            PriceEur = 3.20m,
+                            SortOrder = 7,
+                            VolumeMl = 240
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-000000000108"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "V60",
+                            PriceEur = 4.00m,
+                            SortOrder = 8,
+                            VolumeMl = 250
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-000000000109"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Cold Brew",
+                            PriceEur = 4.50m,
+                            SortOrder = 9,
+                            VolumeMl = 200
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-00000000010a"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Iced Latte",
+                            PriceEur = 3.40m,
+                            SortOrder = 10,
+                            VolumeMl = 360
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-00000000010b"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Iced Matcha Latte",
+                            PriceEur = 3.50m,
+                            SortOrder = 11,
+                            VolumeMl = 360
+                        },
+                        new
+                        {
+                            Id = new Guid("0195f0a0-0000-7000-8000-00000000010c"),
+                            EarnsStamp = true,
+                            IsActive = true,
+                            Name = "Caffè Leccese",
+                            PriceEur = 2.30m,
+                            SortOrder = 12,
+                            VolumeMl = 40
+                        });
+                });
+
             modelBuilder.Entity("StoryCups.Domain.Qr.ScanSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -448,6 +777,56 @@ namespace StoryCups.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
+            modelBuilder.Entity("StoryCups.Domain.Loyalty.LedgerEntry", b =>
+                {
+                    b.HasOne("StoryCups.Domain.Loyalty.CustomerAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StoryCups.Domain.Loyalty.LoyaltyAction", null)
+                        .WithMany("Entries")
+                        .HasForeignKey("ActionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StoryCups.Domain.Loyalty.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("StoryCups.Domain.Loyalty.LedgerEntry", null)
+                        .WithMany()
+                        .HasForeignKey("ReversesEntryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("StoryCups.Domain.Loyalty.LoyaltyAction", b =>
+                {
+                    b.HasOne("StoryCups.Domain.Loyalty.CustomerAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StoryCups.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StoryCups.Domain.Loyalty.LoyaltyAction", null)
+                        .WithMany()
+                        .HasForeignKey("ReversesActionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("StoryCups.Domain.Qr.ScanSession", null)
+                        .WithMany()
+                        .HasForeignKey("ScanSessionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("StoryCups.Domain.Qr.ScanSession", b =>
                 {
                     b.HasOne("StoryCups.Domain.Loyalty.CustomerAccount", null)
@@ -461,6 +840,11 @@ namespace StoryCups.Infrastructure.Persistence.Migrations
                         .HasForeignKey("BaristaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("StoryCups.Domain.Loyalty.LoyaltyAction", b =>
+                {
+                    b.Navigation("Entries");
                 });
 #pragma warning restore 612, 618
         }
