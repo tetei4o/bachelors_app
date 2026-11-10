@@ -49,7 +49,7 @@
             error = await Session.LoginAsync(input.Email, input.Password);
             if (error is null)
             {
-                NavigationManager.NavigateTo("profile", replace: true);
+                NavigationManager.NavigateTo(StartPage.For(Session.User), replace: true);
             }
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)

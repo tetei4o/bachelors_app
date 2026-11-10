@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\StoryCups.RestClient\StoryCups.RestClient.csproj" />
     <ProjectReference Include="..\..\src\StoryCups.Web\StoryCups.Web.csproj" />
   </ItemGroup>
 
