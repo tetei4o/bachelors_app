@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StoryCups.Contracts\StoryCups.Contracts.csproj" />
+    <ProjectReference Include="..\StoryCups.RestClient\StoryCups.RestClient.csproj" />
     <ProjectReference Include="..\StoryCups.Shared\StoryCups.Shared.csproj" />
   </ItemGroup>
 

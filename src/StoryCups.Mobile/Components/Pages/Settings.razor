@@ -24,6 +24,11 @@
     <button class="btn btn-outline-danger" @onclick="LogoutAsync">Изход</button>
 </AuthorizeView>
 
+@* Проверката на скенера от spike-а по ADR-003 остава достъпна за служителите. *@
+<AuthorizeView Roles="Barista,Admin">
+    <p class="small mt-4 mb-0"><a href="scanner-test">Тест на скенера</a></p>
+</AuthorizeView>
+
 <p class="small text-body-secondary mt-4">Версия @AppInfo.Current.VersionString</p>
 
 @code {

@@ -1,10 +1,13 @@
 using BarcodeScanning;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Logging;
+using StoryCups.Contracts.Loyalty;
 using StoryCups.Contracts.Profile;
 using StoryCups.Mobile.Auth;
 using StoryCups.Mobile.Scanning;
 using StoryCups.Mobile.Services;
+using StoryCups.RestClient;
+using StoryCups.Shared.Services;
 
 namespace StoryCups.Mobile;
 
@@ -37,8 +40,17 @@ public static class MauiProgram
         builder.Services.AddSingleton<AuthenticationStateProvider, SessionAuthenticationStateProvider>();
         builder.Services.AddSingleton<IProfileService, HttpProfileService>();
 
-        // Скенер на баристата: native MAUI страница с камерата (ADR-003, spike).
+        // Картата на клиента и действията на баристата: общите екрани от StoryCups.Shared през REST API-то.
+        builder.Services.AddSingleton<IApiConnection, MobileApiConnection>();
+        builder.Services.AddSingleton<ApiCaller>();
+        builder.Services.AddSingleton<LoyaltyApiClient>();
+        builder.Services.AddSingleton<ICustomerCardService>(services => services.GetRequiredService<LoyaltyApiClient>());
+        builder.Services.AddSingleton<IBaristaService>(services => services.GetRequiredService<LoyaltyApiClient>());
+        builder.Services.AddSingleton(new ClientUiOptions());
+
+        // Скенер на баристата: native MAUI страница с камерата (ADR-003).
         builder.Services.AddSingleton<IScannerService, MauiScannerService>();
+        builder.Services.AddSingleton<IQrScanner, MauiQrScanner>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

@@ -1,0 +1,478 @@
+@page "/barista"
+@attribute [Authorize(Roles = "Barista,Admin")]
+@implements IAsyncDisposable
+@inject IBaristaService BaristaService
+@inject IQrScanner Scanner
+@inject TimeProvider Time
+
+@* Екранът на баристата (US-10, US-11, US-12, US-14, ADR-008): сканиране, преглед на баланса и действие.
+   Тук се отбелязват покупки, направени на място в кафенето; през системата не се поръчва и не се плаща. *@
+
+<PageTitle>Сканиране</PageTitle>
+
+<div class="sc-narrow sc-barista">
+    <h1 class="h3 mb-3">Сканиране</h1>
+
+    @if (pending is not null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Действието НЕ е записано.</strong>
+            Няма връзка със сървъра. Повторният опит е безопасен: действието не може да се запише два пъти.
+            <div class="sc-actions mt-3">
+                <button type="button" class="btn btn-primary" @onclick="RetryAsync" disabled="@busy">Опитай отново</button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="DropPending" disabled="@busy">Откажи</button>
+            </div>
+        </div>
+    }
+    else if (error is not null)
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+
+    @if (notice is not null)
+    {
+        <div class="alert alert-warning" role="status">@notice</div>
+    }
+
+    @if (resultText is not null)
+    {
+        <div class="alert alert-success" role="status">
+            <strong>@resultText</strong>
+            @if (balance is not null)
+            {
+                <div>Баланс: @balance.Stamps от @balance.StampThreshold печата, награди: @balance.Rewards.</div>
+            }
+
+            @if (CanUndo && !undoOpen)
+            {
+                <button type="button" class="btn btn-link p-0 mt-2" @onclick="OpenUndo">Отмени това действие</button>
+            }
+        </div>
+
+        @if (CanUndo && undoOpen)
+        {
+            <EditForm Model="undo" OnValidSubmit="UndoAsync" class="sc-undo">
+                <DataAnnotationsValidator />
+                <label for="undo-reason" class="form-label">Причина за отмяната</label>
+                <InputText id="undo-reason" class="form-control" @bind-Value="undo.Reason" maxlength="@ReversalRequest.ReasonMaxLength" />
+                <ValidationMessage For="() => undo.Reason" />
+                <div class="sc-actions mt-3">
+                    <button type="submit" class="btn btn-outline-danger" disabled="@busy">Потвърди отмяната</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="CloseUndo" disabled="@busy">Назад</button>
+                </div>
+            </EditForm>
+        }
+    }
+
+    @if (session is null)
+    {
+        @if (Scanner.HasCamera)
+        {
+            <p>Помолете клиента да покаже QR кода от своята карта.</p>
+            <button type="button" class="btn btn-primary btn-lg w-100" @onclick="ScanWithCameraAsync" disabled="@busy">
+                @(busy ? "Проверка..." : "Сканирай код")
+            </button>
+        }
+        else
+        {
+            <p class="text-body-secondary">
+                В браузъра няма скенер: сканирането с камера е в приложението за Android.
+                Тук кодът се въвежда като текст, за проверка при разработка.
+            </p>
+            <form @onsubmit="SubmitManualTokenAsync">
+                <label for="manual-token" class="form-label">Код от картата на клиента</label>
+                <textarea id="manual-token" class="form-control sc-token-input" rows="3" autocomplete="off" spellcheck="false"
+                          @bind="manualToken" @bind:event="oninput"></textarea>
+                <div class="sc-actions mt-3">
+                    <button type="submit" class="btn btn-primary" disabled="@(busy || string.IsNullOrWhiteSpace(manualToken))">
+                        @(busy ? "Проверка..." : "Провери кода")
+                    </button>
+                </div>
+            </form>
+        }
+    }
+    else
+    {
+        <section class="sc-customer" aria-label="Клиент">
+            <div class="sc-avatar" aria-hidden="true">@session.CustomerInitials</div>
+            <div>
+                <div class="sc-customer-balance">@balance!.Stamps от @balance.StampThreshold печата</div>
+                <div class="text-body-secondary">
+                    @(balance.Rewards == 0 ? "Няма налична награда" : $"Налични: {LoyaltyTexts.Rewards(balance.Rewards)}")
+                </div>
+            </div>
+        </section>
+        <p class="small text-body-secondary mt-2">Сесията важи още @FormatSeconds(SessionSecondsLeft()).</p>
+
+        @if (products is null)
+        {
+            <p class="text-body-secondary">@(productsError ?? "Зареждане на менюто...")</p>
+        }
+        else
+        {
+            <section aria-labelledby="stamps-title">
+                <h2 id="stamps-title" class="h5 mt-4">Купени напитки</h2>
+                <ul class="sc-product-list">
+                    @foreach (var product in products)
+                    {
+                        var quantity = quantities.GetValueOrDefault(product.Id);
+                        <li class="sc-product">
+                            <span>
+                                <span class="sc-product-name">@product.Name</span>
+                                <span class="sc-product-note">@product.VolumeMl ml@(product.EarnsStamp ? null : " · не носи печат")</span>
+                            </span>
+                            <span class="sc-stepper">
+                                <button type="button" class="btn sc-step" aria-label="@($"Намали {product.Name}")"
+                                        @onclick="() => Change(product.Id, -1)" disabled="@(busy || quantity == 0)">−</button>
+                                <span class="sc-step-count" aria-live="polite">@quantity</span>
+                                <button type="button" class="btn sc-step" aria-label="@($"Добави {product.Name}")"
+                                        @onclick="() => Change(product.Id, 1)" disabled="@(busy || SelectedUnits >= LoyaltyActionRequest.MaxUnits)">+</button>
+                            </span>
+                        </li>
+                    }
+                </ul>
+                <button type="button" class="btn btn-primary btn-lg w-100 mt-3" @onclick="AddStampsAsync"
+                        disabled="@(busy || SelectedUnits == 0 || pending is not null)">
+                    @(SelectedUnits == 0 ? "Начисли печати" : $"Начисли печати за {SelectedUnits} бр.")
+                </button>
+            </section>
+
+            @if (balance.Rewards > 0)
+            {
+                <section class="sc-reward" aria-labelledby="reward-title">
+                    <h2 id="reward-title" class="h5 mt-4">Безплатна напитка</h2>
+                    <label for="reward-product" class="form-label">Коя напитка взима клиентът с наградата?</label>
+                    <select id="reward-product" class="form-select" @bind="rewardProductId">
+                        <option value="@Guid.Empty">Изберете напитка</option>
+                        @foreach (var product in products.Where(p => p.EarnsStamp))
+                        {
+                            <option value="@product.Id">@product.Name, @product.VolumeMl ml</option>
+                        }
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary w-100 mt-3" @onclick="RedeemAsync"
+                            disabled="@(busy || rewardProductId == Guid.Empty || pending is not null)">
+                        Използвай награда
+                    </button>
+                </section>
+            }
+        }
+
+        <div class="sc-actions">
+            <button type="button" class="btn btn-link px-0" @onclick="Finish" disabled="@busy">Готово, следващ клиент</button>
+        </div>
+    }
+</div>
+
+@code {
+    private static readonly TimeSpan Tick = TimeSpan.FromSeconds(1);
+
+    private readonly CancellationTokenSource stop = new();
+    private readonly Dictionary<Guid, int> quantities = [];
+    private readonly UndoModel undo = new();
+    private Task? loop;
+
+    private IReadOnlyList<ProductDto>? products;
+    private string? productsError;
+
+    private ScanSessionDto? session;
+    private long sessionRequestedAt;
+    private LoyaltyStatusDto? balance;
+    private string manualToken = string.Empty;
+    private Guid rewardProductId;
+
+    private bool busy;
+    private string? error;
+    private string? notice;
+
+    /// <summary>Последното успешно действие: за него се предлага отмяна, докато тече срокът.</summary>
+    private LoyaltyActionResultDto? lastAction;
+    private long lastActionAt;
+    private string? resultText;
+    private bool undoOpen;
+
+    /// <summary>
+    /// Действие, за което не е получен отговор. Пази заявката заедно с идемпотентния ѝ ключ: повторният опит
+    /// праща същия ключ и сървърът не записва действието втори път (ADR-007, ADR-008).
+    /// </summary>
+    private PendingAction? pending;
+
+    private int SelectedUnits => quantities.Values.Sum();
+
+    private bool CanUndo =>
+        lastAction is { UndoUntil: not null }
+        && Time.GetElapsedTime(lastActionAt) < lastAction.UndoUntil.Value - lastAction.CreatedAt;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            loop = RunAsync(stop.Token);
+        }
+    }
+
+    private async Task RunAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await LoadProductsAsync(cancellationToken);
+            StateHasChanged();
+
+            // Всяка секунда: обратното броене на сесията и краят на срока за отмяна.
+            using var timer = new PeriodicTimer(Tick, Time);
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                if (session is not null && SessionSecondsLeft() == 0 && !busy)
+                {
+                    CloseSession();
+                    notice = "Сесията изтече. Сканирайте кода на клиента отново.";
+                }
+
+                if (session is not null || lastAction is not null)
+                {
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Екранът е затворен.
+        }
+    }
+
+    private async Task LoadProductsAsync(CancellationToken cancellationToken)
+    {
+        var result = await BaristaService.GetProductsAsync(cancellationToken);
+        products = result.IsSuccess ? result.Value : null;
+        productsError = result.IsSuccess
+            ? null
+            : result.IsNetworkError ? "Няма връзка, менюто не може да се зареди." : result.ErrorMessage;
+    }
+
+    private async Task ScanWithCameraAsync()
+    {
+        ClearMessages();
+        var scan = await Scanner.ScanAsync(stop.Token);
+        switch (scan.Status)
+        {
+            case QrScanStatus.Scanned when !string.IsNullOrWhiteSpace(scan.Value):
+                await OpenSessionAsync(scan.Value);
+                break;
+            case QrScanStatus.PermissionDenied:
+                notice = "Няма разрешение за камерата. Разрешете го от настройките на телефона.";
+                break;
+        }
+    }
+
+    private Task SubmitManualTokenAsync()
+    {
+        ClearMessages();
+        return OpenSessionAsync(manualToken.Trim());
+    }
+
+    private async Task OpenSessionAsync(string token)
+    {
+        busy = true;
+        try
+        {
+            if (products is null)
+            {
+                await LoadProductsAsync(stop.Token);
+            }
+
+            var requestedAt = Time.GetTimestamp();
+            var result = await BaristaService.ScanAsync(token, stop.Token);
+            if (!result.IsSuccess)
+            {
+                error = result.IsNetworkError
+                    ? "Няма връзка със сървъра. Кодът не е проверен."
+                    : result.ErrorMessage;
+                return;
+            }
+
+            session = result.Value;
+            sessionRequestedAt = requestedAt;
+            balance = session!.Loyalty;
+            manualToken = string.Empty;
+            quantities.Clear();
+            rewardProductId = Guid.Empty;
+            ForgetLastAction();
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+
+    private void Change(Guid productId, int delta)
+    {
+        var quantity = Math.Max(0, quantities.GetValueOrDefault(productId) + delta);
+        if (quantity == 0)
+        {
+            quantities.Remove(productId);
+        }
+        else
+        {
+            quantities[productId] = quantity;
+        }
+    }
+
+    private Task AddStampsAsync()
+    {
+        var request = new LoyaltyActionRequest
+        {
+            Type = LoyaltyActionTypes.Purchase,
+            Items = [.. quantities.Select(pair => new PurchaseItem { ProductId = pair.Key, Quantity = pair.Value })],
+        };
+        return SubmitAsync(request);
+    }
+
+    private Task RedeemAsync() =>
+        SubmitAsync(new LoyaltyActionRequest { Type = LoyaltyActionTypes.RedeemReward, ProductId = rewardProductId });
+
+    private Task SubmitAsync(LoyaltyActionRequest request)
+    {
+        if (session is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        // Нов ключ за ново намерение на баристата; повторният опит използва същия.
+        var sessionId = session.Id;
+        var idempotencyKey = Guid.NewGuid();
+        return SendAsync(new PendingAction(
+            () => BaristaService.SubmitActionAsync(sessionId, request, idempotencyKey, stop.Token), IsReversal: false));
+    }
+
+    private Task UndoAsync()
+    {
+        if (lastAction is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        var actionId = lastAction.ActionId;
+        var reason = undo.Reason.Trim();
+        var idempotencyKey = Guid.NewGuid();
+        return SendAsync(new PendingAction(
+            () => BaristaService.ReverseAsync(actionId, reason, idempotencyKey, stop.Token), IsReversal: true));
+    }
+
+    private Task RetryAsync() => pending is null ? Task.CompletedTask : SendAsync(pending);
+
+    private async Task SendAsync(PendingAction action)
+    {
+        busy = true;
+        error = null;
+        notice = null;
+        try
+        {
+            var result = await action.Send();
+            if (result.IsNetworkError)
+            {
+                pending = action;
+                return;
+            }
+
+            pending = null;
+            if (!result.IsSuccess)
+            {
+                error = result.ErrorMessage;
+                return;
+            }
+
+            var value = result.Value!;
+            balance = value.Loyalty;
+            quantities.Clear();
+            rewardProductId = Guid.Empty;
+            CloseUndo();
+            if (action.IsReversal)
+            {
+                lastAction = null;
+                resultText = "Действието е отменено.";
+            }
+            else
+            {
+                lastAction = value;
+                lastActionAt = Time.GetTimestamp();
+                resultText = LoyaltyTexts.Describe(value.Type, value.StampsAdded, value.RewardsEarned, value.RewardsRedeemed) + ".";
+            }
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+
+    private void DropPending() => pending = null;
+
+    private void OpenUndo()
+    {
+        undo.Reason = string.Empty;
+        undoOpen = true;
+    }
+
+    private void CloseUndo() => undoOpen = false;
+
+    private void Finish()
+    {
+        CloseSession();
+        ClearMessages();
+        ForgetLastAction();
+    }
+
+    private void CloseSession()
+    {
+        session = null;
+        quantities.Clear();
+        rewardProductId = Guid.Empty;
+    }
+
+    private void ForgetLastAction()
+    {
+        lastAction = null;
+        resultText = null;
+        undoOpen = false;
+        pending = null;
+    }
+
+    private void ClearMessages()
+    {
+        error = null;
+        notice = null;
+    }
+
+    private int SessionSecondsLeft() => session is null
+        ? 0
+        : Math.Max(0, (int)Math.Ceiling(session.LifetimeSeconds - Time.GetElapsedTime(sessionRequestedAt).TotalSeconds));
+
+    private static string FormatSeconds(int seconds) => $"{seconds / 60}:{seconds % 60:00} мин";
+
+    public async ValueTask DisposeAsync()
+    {
+        await stop.CancelAsync();
+        if (loop is not null)
+        {
+            try
+            {
+                await loop;
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        stop.Dispose();
+    }
+
+    private sealed record PendingAction(Func<Task<ClientResult<LoyaltyActionResultDto>>> Send, bool IsReversal);
+
+    private sealed class UndoModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Въведете причина за отмяната.")]
+        [System.ComponentModel.DataAnnotations.StringLength(
+            ReversalRequest.ReasonMaxLength,
+            MinimumLength = ReversalRequest.ReasonMinLength,
+            ErrorMessage = "Причината е от {2} до {1} знака.")]
+        public string Reason { get; set; } = string.Empty;
+    }
+}

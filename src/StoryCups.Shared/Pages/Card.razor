@@ -1,0 +1,321 @@
+@page "/card"
+@attribute [Authorize(Roles = "Customer")]
+@implements IAsyncDisposable
+@inject ICustomerCardService CardService
+@inject TimeProvider Time
+@inject ClientUiOptions UiOptions
+
+@* Картата на клиента (US-04, US-05, US-06): QR кодът за баристата, печатите и историята.
+   Общ екран за сайта и приложението (ADR-003). Тук нищо не се поръчва и не се плаща. *@
+
+<PageTitle>Моята карта</PageTitle>
+
+<div class="sc-narrow sc-card-page">
+    <h1 class="h3 mb-3">Моята карта</h1>
+
+    @if (status is { Rewards: > 0 })
+    {
+        <div class="alert alert-success" role="status">
+            <strong>Имате @LoyaltyTexts.Rewards(status.Rewards).</strong>
+            Кажете на баристата, когато сканира кода ви.
+        </div>
+    }
+
+    <section class="sc-qr-panel" aria-labelledby="qr-title">
+        <h2 id="qr-title" class="h5 mb-0">Покажете кода на баристата</h2>
+        @if (token is not null)
+        {
+            <QrCode Value="@token.Token" AriaLabel="Личен QR код за сканиране от баристата" />
+            <p class="sc-qr-timer">
+                Кодът важи още <strong>@SecondsLeft() s</strong> и се сменя сам.
+            </p>
+            @if (refreshFailed)
+            {
+                <p class="small text-danger mb-0" role="status">Няма връзка. Новият код ще се зареди, щом връзката се върне.</p>
+            }
+
+            @if (UiOptions.ShowQrTokenText)
+            {
+                <details class="sc-dev-token">
+                    <summary>Кодът като текст (само в режим за разработка)</summary>
+                    <code class="sc-token-text">@token.Token</code>
+                </details>
+            }
+        }
+        else if (tokenError is not null)
+        {
+            <div class="alert alert-warning w-100" role="alert">@tokenError</div>
+            <button type="button" class="btn btn-primary" @onclick="RetryTokenAsync" disabled="@refreshing">Опитай отново</button>
+        }
+        else
+        {
+            <p class="text-body-secondary mb-0">Зареждане на кода...</p>
+        }
+    </section>
+
+    @if (status is not null)
+    {
+        <StampCard Required="status.StampThreshold" Stamped="status.Stamps" Caption="@LoyaltyTexts.CardCaption(status)" />
+    }
+    else if (statusError is not null)
+    {
+        <div class="alert alert-warning" role="alert">@statusError</div>
+    }
+
+    <section class="mt-4" aria-labelledby="history-title">
+        <h2 id="history-title" class="h5">История</h2>
+        @if (history is null)
+        {
+            <p class="text-body-secondary">@(historyError ?? "Зареждане...")</p>
+        }
+        else if (history.Count == 0)
+        {
+            <p class="text-body-secondary">Още нямате печати. Първият идва с първата напитка.</p>
+        }
+        else
+        {
+            <ol class="sc-history">
+                @foreach (var item in history)
+                {
+                    <li class="@(item.IsReversed ? "is-reversed" : null)">
+                        <span class="sc-history-what">
+                            @LoyaltyTexts.Describe(item.Type, item.StampsAdded, item.RewardsEarned, item.RewardsRedeemed)
+                        </span>
+                        <span class="sc-history-when">@CafeTime.Format(item.CreatedAt)</span>
+                        @if (item.Products is not null || item.IsReversed)
+                        {
+                            <span class="sc-history-note">
+                                @item.Products@(item.IsReversed ? (item.Products is null ? "отменено" : " · отменено") : null)
+                            </span>
+                        }
+                    </li>
+                }
+            </ol>
+            @if (nextBefore is not null)
+            {
+                <button type="button" class="btn btn-outline-secondary mt-3" @onclick="LoadOlderAsync" disabled="@loadingOlder">
+                    По-стари
+                </button>
+            }
+        }
+    </section>
+</div>
+
+@code {
+    private static readonly TimeSpan Tick = TimeSpan.FromSeconds(1);
+
+    /// <summary>Колко често се проверява балансът, за да се появи новият печат скоро след сканирането.</summary>
+    private static readonly TimeSpan StatusInterval = TimeSpan.FromSeconds(5);
+
+    /// <summary>Пауза между опитите за нов код, когато няма връзка.</summary>
+    private static readonly TimeSpan RetryInterval = TimeSpan.FromSeconds(5);
+
+    private readonly CancellationTokenSource stop = new();
+    private Task? loop;
+
+    private QrTokenResponse? token;
+    private long tokenRequestedAt;
+    private long lastTokenAttemptAt;
+    private string? tokenError;
+    private bool refreshFailed;
+    private bool refreshing;
+
+    private LoyaltyStatusDto? status;
+    private string? statusError;
+    private long lastStatusAt;
+
+    private List<LoyaltyHistoryItemDto>? history;
+    private string? historyError;
+    private int? nextBefore;
+    private bool loadingOlder;
+
+    /// <summary>
+    /// Данните се зареждат след първото изчертаване, а не при предварителното: иначе сайтът би издал един код
+    /// при prerender и втори при интерактивната връзка.
+    /// </summary>
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            loop = RunAsync(stop.Token);
+        }
+    }
+
+    private async Task RunAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await RefreshTokenAsync(cancellationToken);
+            StateHasChanged();
+            await LoadStatusAsync(cancellationToken);
+            StateHasChanged();
+
+            using var timer = new PeriodicTimer(Tick, Time);
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                await OnTickAsync(cancellationToken);
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Екранът е затворен.
+        }
+    }
+
+    /// <summary>
+    /// Всяка секунда: обратното броене, нов код, когато остават под 20 s (ADR-006), и проверка на баланса.
+    /// Възрастта на кода се мери от момента на заявката с часовника за интервали, а не по часа на устройството:
+    /// грешно сверен телефон не скъсява и не удължава живота на кода.
+    /// </summary>
+    private async Task OnTickAsync(CancellationToken cancellationToken)
+    {
+        if (token is not null && TokenAge() >= TimeSpan.FromSeconds(token.LifetimeSeconds))
+        {
+            // Последният код се показва само докато е валиден (ADR-007).
+            token = null;
+            tokenError ??= "Няма връзка, кодът не може да се обнови. Свържете се с интернет.";
+        }
+
+        var needsToken = token is null || TokenAge() >= TimeSpan.FromSeconds(token.RefreshAfterSeconds);
+        if (needsToken && Time.GetElapsedTime(lastTokenAttemptAt) >= RetryInterval)
+        {
+            await RefreshTokenAsync(cancellationToken);
+        }
+
+        if (Time.GetElapsedTime(lastStatusAt) >= StatusInterval)
+        {
+            await LoadStatusAsync(cancellationToken);
+        }
+    }
+
+    private async Task RefreshTokenAsync(CancellationToken cancellationToken)
+    {
+        if (refreshing)
+        {
+            return;
+        }
+
+        refreshing = true;
+        try
+        {
+            var requestedAt = Time.GetTimestamp();
+            lastTokenAttemptAt = requestedAt;
+            var result = await CardService.IssueQrTokenAsync(cancellationToken);
+            if (result.IsSuccess)
+            {
+                token = result.Value;
+                tokenRequestedAt = requestedAt;
+                tokenError = null;
+                refreshFailed = false;
+            }
+            else
+            {
+                refreshFailed = true;
+                var message = result.IsNetworkError
+                    ? "Няма връзка, кодът не може да се обнови. Свържете се с интернет."
+                    : result.ErrorMessage;
+                if (token is null)
+                {
+                    tokenError = message;
+                }
+            }
+        }
+        finally
+        {
+            refreshing = false;
+        }
+    }
+
+    private Task RetryTokenAsync() => RefreshTokenAsync(stop.Token);
+
+    private async Task LoadStatusAsync(CancellationToken cancellationToken)
+    {
+        lastStatusAt = Time.GetTimestamp();
+        var result = await CardService.GetStatusAsync(cancellationToken);
+        if (!result.IsSuccess)
+        {
+            if (status is null)
+            {
+                statusError = result.IsNetworkError ? "Няма връзка, печатите не могат да се заредят." : result.ErrorMessage;
+            }
+
+            return;
+        }
+
+        var isFirst = status is null;
+        var changed = !isFirst && result.Value != status;
+        status = result.Value;
+        statusError = null;
+        if (isFirst || changed)
+        {
+            await LoadHistoryAsync(cancellationToken);
+        }
+
+        if (changed)
+        {
+            // Балансът се е променил, значи показаният код вече е сканиран: веднага нов.
+            await RefreshTokenAsync(cancellationToken);
+        }
+    }
+
+    private async Task LoadHistoryAsync(CancellationToken cancellationToken)
+    {
+        var result = await CardService.GetHistoryAsync(before: null, cancellationToken);
+        if (result.IsSuccess)
+        {
+            history = [.. result.Value!.Items];
+            nextBefore = result.Value.NextBefore;
+            historyError = null;
+        }
+        else if (history is null)
+        {
+            historyError = result.IsNetworkError ? "Няма връзка, историята не може да се зареди." : result.ErrorMessage;
+        }
+    }
+
+    private async Task LoadOlderAsync()
+    {
+        if (history is null || nextBefore is null)
+        {
+            return;
+        }
+
+        loadingOlder = true;
+        try
+        {
+            var result = await CardService.GetHistoryAsync(nextBefore, stop.Token);
+            if (result.IsSuccess)
+            {
+                history.AddRange(result.Value!.Items);
+                nextBefore = result.Value.NextBefore;
+            }
+        }
+        finally
+        {
+            loadingOlder = false;
+        }
+    }
+
+    private TimeSpan TokenAge() => Time.GetElapsedTime(tokenRequestedAt);
+
+    private int SecondsLeft() =>
+        token is null ? 0 : Math.Max(0, (int)Math.Ceiling(token.LifetimeSeconds - TokenAge().TotalSeconds));
+
+    public async ValueTask DisposeAsync()
+    {
+        await stop.CancelAsync();
+        if (loop is not null)
+        {
+            try
+            {
+                await loop;
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        stop.Dispose();
+    }
+}

@@ -18,9 +18,17 @@
     else
     {
         <ProfileCard Profile="profile" />
-        <p class="text-body-secondary small mt-3">
-            Картата с QR код и печатите се появяват тук в следващата версия.
-        </p>
+        <div class="sc-actions">
+            @if (profile.Roles.Contains("Customer"))
+            {
+                <a class="btn btn-primary" href="card">Моята карта</a>
+            }
+
+            @if (profile.Roles.Contains("Barista") || profile.Roles.Contains("Admin"))
+            {
+                <a class="btn btn-primary" href="barista">Сканиране</a>
+            }
+        </div>
     }
 </div>
 

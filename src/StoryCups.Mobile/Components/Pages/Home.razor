@@ -29,7 +29,7 @@ else
         try
         {
             await Session.RestoreAsync();
-            NavigationManager.NavigateTo(Session.IsSignedIn ? "profile" : "login", replace: true);
+            NavigationManager.NavigateTo(Session.IsSignedIn ? StartPage.For(Session.User) : "login", replace: true);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or InvalidOperationException)
         {
