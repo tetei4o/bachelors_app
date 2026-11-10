@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using StoryCups.Contracts;
+using StoryCups.Contracts.Loyalty;
 using StoryCups.Contracts.Profile;
 using StoryCups.Domain.Identity;
 using StoryCups.Infrastructure;
 using StoryCups.Infrastructure.Auth;
 using StoryCups.Infrastructure.Seeding;
+using StoryCups.Shared.Services;
 using StoryCups.Web;
 using StoryCups.Web.Api;
 using StoryCups.Web.Components;
@@ -26,6 +28,13 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<IProfileService, ServerProfileService>();
+
+// Общите екрани „Карта“ и „Сканиране“ (ADR-003): в сайта услугите им викат Application слоя без HTTP.
+builder.Services.AddSingleton<SiteRateLimiter>();
+builder.Services.AddScoped<ICustomerCardService, ServerCustomerCardService>();
+builder.Services.AddScoped<IBaristaService, ServerBaristaService>();
+builder.Services.AddSingleton<IQrScanner, NoCameraQrScanner>();
+builder.Services.AddSingleton(new ClientUiOptions { ShowQrTokenText = builder.Environment.IsDevelopment() });
 
 // Кирилицата, „кавичките“, € и „è“ от менюто се извеждат като текст, а не като &#x...; ентитита.
 builder.Services.AddWebEncoders(options =>

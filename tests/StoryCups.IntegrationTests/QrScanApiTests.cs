@@ -333,4 +333,18 @@ public sealed class QrRateLimitTests(QrRateLimitedAppFactory app) : IClassFixtur
 
         Assert.Equal(HttpStatusCode.NotFound, (await client.SubmitActionAsync(other, Guid.NewGuid(), request)).StatusCode);
     }
+
+    [Fact]
+    public async Task SiteServices_HaveTheSameLimits()
+    {
+        // Сайтът изпълнява сканирането през интерактивната връзка, без HTTP; лимитът важи и там.
+        var limiter = app.Services.GetRequiredService<StoryCups.Web.Services.SiteRateLimiter>();
+        var barista = Guid.NewGuid();
+
+        Assert.True(limiter.TryAcquire(StoryCups.Web.Api.QrEndpoints.ScanRateLimitPolicy, barista));
+        Assert.True(limiter.TryAcquire(StoryCups.Web.Api.QrEndpoints.ScanRateLimitPolicy, barista));
+        Assert.False(limiter.TryAcquire(StoryCups.Web.Api.QrEndpoints.ScanRateLimitPolicy, barista));
+        Assert.True(limiter.TryAcquire(StoryCups.Web.Api.QrEndpoints.ScanRateLimitPolicy, Guid.NewGuid()));
+        Assert.True(limiter.TryAcquire(StoryCups.Web.Api.QrEndpoints.IssueRateLimitPolicy, barista));
+    }
 }

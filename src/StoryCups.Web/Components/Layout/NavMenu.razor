@@ -1,4 +1,5 @@
 @implements IDisposable
+@using StoryCups.Domain.Identity
 @using StoryCups.Infrastructure.Identity
 @inject NavigationManager NavigationManager
 
@@ -19,6 +20,16 @@
         <div class="sc-nav-account">
             <AuthorizeView>
                 <Authorized>
+                    @if (context.User.IsInRole(AppRoles.Customer))
+                    {
+                        <NavLink class="nav-link px-2" href="card">Моята карта</NavLink>
+                    }
+
+                    @if (context.User.IsInRole(AppRoles.Barista) || context.User.IsInRole(AppRoles.Admin))
+                    {
+                        <NavLink class="nav-link px-2" href="barista">Сканиране</NavLink>
+                    }
+
                     <NavLink class="nav-link px-2" href="profile">@(context.User.FindFirst(AppUserClaimsPrincipalFactory.DisplayNameClaim)?.Value ?? context.User.Identity?.Name)</NavLink>
                     <form action="Account/Logout" method="post" class="d-inline">
                         <AntiforgeryToken />

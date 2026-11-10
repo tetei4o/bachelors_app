@@ -1,9 +1,14 @@
 @page "/"
 @layout LandingLayout
 @attribute [ExcludeFromInteractiveRouting]
+@using StoryCups.Application.Loyalty
+@using StoryCups.Contracts.Loyalty
+@using StoryCups.Domain.Identity
 @using StoryCups.Web.Content
+@inject IProductCatalog Catalog
 
-@* Публична страница: статичен SSR, без вход и без SignalR връзка (ADR-013). *@
+@* Публична страница: статичен SSR, без вход и без SignalR връзка (ADR-013).
+   Менюто и прагът за награда се четат от базата: същите данни, по които баристата начислява печати. *@
 
 <PageTitle>@CafeInfo.Name</PageTitle>
 
@@ -25,9 +30,9 @@
                 <a class="btn btn-sc-on-dark btn-lg" href="#loyalty">Как работи картата</a>
             </div>
         </div>
-        <StampCard Required="CafeInfo.StampsForReward" Stamped="5" Animate="true"
-                   Caption="@($"{CafeInfo.StampsForReward} печата =\n1 безплатна напитка")"
-                   AriaLabel="@($"Пример за карта: 5 от {CafeInfo.StampsForReward} печата")" />
+        <StampCard Required="stampThreshold" Stamped="ExampleStamps" Animate="true"
+                   Caption="@($"{stampThreshold} печата =\n1 безплатна напитка")"
+                   AriaLabel="@($"Пример за карта: {ExampleStamps} от {stampThreshold} печата")" />
     </div>
 </section>
 
@@ -46,7 +51,7 @@
         </div>
         @* Като дъската в кафенето: име, обем и цена зад една непрекъсната вертикална линия. *@
         <ul class="sc-menu-list">
-            @foreach (var drink in CafeMenu.Drinks)
+            @foreach (var drink in drinks)
             {
                 <li class="sc-menu-item">
                     <span class="sc-menu-name">@drink.Name</span>
@@ -69,11 +74,11 @@
             </li>
             <li>
                 <h3>Покажете QR кода</h3>
-                <p>Баристата го сканира при поръчка. Кодът се сменя на всяка минута.</p>
+                <p>Баристата го сканира на касата. Кодът се сменя на всяка минута.</p>
             </li>
             <li>
                 <h3>Вземете наградата</h3>
-                <p>След @CafeInfo.StampsForReward печата баристата отбелязва безплатна напитка.</p>
+                <p>След @stampThreshold печата баристата отбелязва безплатна напитка.</p>
             </li>
         </ol>
 
@@ -90,7 +95,14 @@
                 </ul>
                 <AuthorizeView>
                     <Authorized>
-                        <a class="btn btn-primary" href="profile">Към моя профил</a>
+                        @if (context.User.IsInRole(AppRoles.Customer))
+                        {
+                            <a class="btn btn-primary" href="card">Към моята карта</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-primary" href="profile">Към моя профил</a>
+                        }
                     </Authorized>
                     <NotAuthorized>
                         <div class="d-flex flex-wrap gap-2">
@@ -133,3 +145,17 @@
         </div>
     </div>
 </section>
+
+@code {
+    private IReadOnlyList<ProductDto> drinks = [];
+    private int stampThreshold;
+
+    /// <summary>Примерната карта в началото показва малко над половината печати.</summary>
+    private int ExampleStamps => Math.Min(5, Math.Max(stampThreshold - 1, 0));
+
+    protected override async Task OnInitializedAsync()
+    {
+        drinks = await Catalog.GetActiveAsync();
+        stampThreshold = await Catalog.GetStampThresholdAsync();
+    }
+}
