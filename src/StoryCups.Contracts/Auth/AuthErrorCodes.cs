@@ -12,5 +12,4 @@ public static class AuthErrorCodes
     public const string RegistrationFailed = "registration_failed";
     public const string InvalidLink = "invalid_link";
     public const string PasswordResetFailed = "password_reset_failed";
-    public const string Validation = "validation";
 }

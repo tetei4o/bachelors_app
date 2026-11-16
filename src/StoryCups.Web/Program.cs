@@ -122,7 +122,6 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var app = builder.Build();
 
@@ -130,7 +129,6 @@ static bool IsApi(HttpContext context) => context.Request.Path.StartsWithSegment
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseMigrationsEndPoint();
     app.MapOpenApi();
 }
 else
