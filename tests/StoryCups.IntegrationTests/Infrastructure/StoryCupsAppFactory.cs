@@ -24,6 +24,8 @@ public class StoryCupsAppFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     protected virtual int AuthPermitsPerMinute => 1000;
 
+    protected virtual int AccountFormPostsPerMinute => 1000;
+
     protected virtual int QrTokensPerMinute => 1000;
 
     protected virtual int ScansPerMinute => 1000;
@@ -59,6 +61,7 @@ public class StoryCupsAppFactory : WebApplicationFactory<Program>, IAsyncLifetim
         builder.UseSetting("Database:MigrateOnStartup", "true");
         builder.UseSetting("Qr:Keys:0:Key", Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
         builder.UseSetting("RateLimiting:AuthPermitsPerMinute", Invariant(AuthPermitsPerMinute));
+        builder.UseSetting("RateLimiting:AccountFormPostsPerMinute", Invariant(AccountFormPostsPerMinute));
         builder.UseSetting("RateLimiting:QrTokensPerMinute", Invariant(QrTokensPerMinute));
         builder.UseSetting("RateLimiting:ScansPerMinute", Invariant(ScansPerMinute));
         builder.UseSetting("RateLimiting:ActionsPerMinute", Invariant(ActionsPerMinute));
