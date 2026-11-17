@@ -16,11 +16,12 @@
     @if (pending is not null)
     {
         <div class="alert alert-danger" role="alert">
-            <strong>Действието НЕ е записано.</strong>
-            Няма връзка със сървъра. Повторният опит е безопасен: действието не може да се запише два пъти.
+            <strong>Няма потвърждение от сървъра.</strong>
+            Не е ясно дали действието е записано. Натиснете „Опитай отново“: повторният опит е безопасен,
+            действието не може да се запише два пъти.
             <div class="sc-actions mt-3">
                 <button type="button" class="btn btn-primary" @onclick="RetryAsync" disabled="@busy">Опитай отново</button>
-                <button type="button" class="btn btn-outline-secondary" @onclick="DropPending" disabled="@busy">Откажи</button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="AbandonPending" disabled="@busy">Откажи</button>
             </div>
         </div>
     }
@@ -69,7 +70,7 @@
         @if (Scanner.HasCamera)
         {
             <p>Помолете клиента да покаже QR кода от своята карта.</p>
-            <button type="button" class="btn btn-primary btn-lg w-100" @onclick="ScanWithCameraAsync" disabled="@busy">
+            <button type="button" class="btn btn-primary btn-lg w-100" @onclick="ScanWithCameraAsync" disabled="@(busy || pending is not null)">
                 @(busy ? "Проверка..." : "Сканирай код")
             </button>
         }
@@ -84,7 +85,7 @@
                 <textarea id="manual-token" class="form-control sc-token-input" rows="3" autocomplete="off" spellcheck="false"
                           @bind="manualToken" @bind:event="oninput"></textarea>
                 <div class="sc-actions mt-3">
-                    <button type="submit" class="btn btn-primary" disabled="@(busy || string.IsNullOrWhiteSpace(manualToken))">
+                    <button type="submit" class="btn btn-primary" disabled="@(busy || pending is not null || string.IsNullOrWhiteSpace(manualToken))">
                         @(busy ? "Проверка..." : "Провери кода")
                     </button>
                 </div>
@@ -158,7 +159,7 @@
         }
 
         <div class="sc-actions">
-            <button type="button" class="btn btn-link px-0" @onclick="Finish" disabled="@busy">Готово, следващ клиент</button>
+            <button type="button" class="btn btn-link px-0" @onclick="Finish" disabled="@(busy || pending is not null)">Готово, следващ клиент</button>
         </div>
     }
 </div>
@@ -191,15 +192,17 @@
     private bool undoOpen;
 
     /// <summary>
-    /// Действие, за което не е получен отговор. Пази заявката заедно с идемпотентния ѝ ключ: повторният опит
-    /// праща същия ключ и сървърът не записва действието втори път (ADR-007, ADR-008).
+    /// Действие, за което не е получен отговор: не се знае дали сървърът го е записал. Пази заявката заедно с
+    /// идемпотентния ѝ ключ: повторният опит праща същия ключ и сървърът не записва действието втори път
+    /// (ADR-007, ADR-008). Докато то чака, екранът не приема друго действие, ново сканиране или „Готово“.
     /// </summary>
     private PendingAction? pending;
 
     private int SelectedUnits => quantities.Values.Sum();
 
     private bool CanUndo =>
-        lastAction is { UndoUntil: not null }
+        pending is null
+        && lastAction is { UndoUntil: not null }
         && Time.GetElapsedTime(lastActionAt) < lastAction.UndoUntil.Value - lastAction.CreatedAt;
 
     protected override void OnAfterRender(bool firstRender)
@@ -250,6 +253,11 @@
 
     private async Task ScanWithCameraAsync()
     {
+        if (pending is not null)
+        {
+            return;
+        }
+
         ClearMessages();
         var scan = await Scanner.ScanAsync(stop.Token);
         switch (scan.Status)
@@ -265,6 +273,11 @@
 
     private Task SubmitManualTokenAsync()
     {
+        if (pending is not null)
+        {
+            return Task.CompletedTask;
+        }
+
         ClearMessages();
         return OpenSessionAsync(manualToken.Trim());
     }
@@ -403,7 +416,36 @@
         }
     }
 
-    private void DropPending() => pending = null;
+    /// <summary>
+    /// Отказ от действие без отговор. Не се знае дали сървърът го е записал, затова екранът не се връща към
+    /// избора със стария баланс: там следващото начисляване би тръгнало с нов ключ и би записало покупката
+    /// втори път. Сесията се затваря, а новото сканиране показва баланса от сървъра (ADR-007).
+    /// </summary>
+    private void AbandonPending()
+    {
+        if (pending is null)
+        {
+            return;
+        }
+
+        var wasReversal = pending.IsReversal;
+        pending = null;
+        CloseSession();
+        balance = null;
+        undoOpen = false;
+        error = null;
+        if (wasReversal)
+        {
+            // Действието, което се отменя, остава на екрана: отмяната може да се поиска отново.
+            notice = "Не е ясно дали отмяната е записана. Сканирайте кода на клиента отново и проверете баланса.";
+            return;
+        }
+
+        // Съобщението за предишно успешно действие не бива да се чете като потвърждение за това.
+        lastAction = null;
+        resultText = null;
+        notice = "Не е ясно дали действието е записано. Сканирайте кода на клиента отново и проверете баланса, преди да начислите пак.";
+    }
 
     private void OpenUndo()
     {
