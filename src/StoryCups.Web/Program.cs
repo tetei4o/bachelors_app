@@ -85,6 +85,33 @@ builder.Services.AddRateLimiter(options =>
         return PerMinute(context.Connection.RemoteIpAddress?.ToString() ?? "unknown", permits);
     });
 
+    // Формите на страниците за акаунта (ADR-010): броят се само изпратените форми (POST), по IP адрес и общо
+    // за всички страници. Отварянето на страница не се ограничава.
+    options.AddPolicy(AccountRateLimiting.PolicyName, context =>
+    {
+        if (!HttpMethods.IsPost(context.Request.Method))
+        {
+            return RateLimitPartition.GetNoLimiter(string.Empty);
+        }
+
+        var permits = context.RequestServices.GetRequiredService<IOptions<RateLimitingOptions>>().Value.AccountFormPostsPerMinute;
+        return PerMinute(context.Connection.RemoteIpAddress?.ToString() ?? "unknown", permits);
+    });
+
+    // Отказана заявка към API-то остава с код 429. Отказана форма от сайта се пренасочва към страница с
+    // обяснение: празен отговор 429 би показал страницата „Не е намерено“.
+    options.OnRejected = (context, _) =>
+    {
+        var http = context.HttpContext;
+        if (!http.Request.Path.StartsWithSegments(ApiRoutes.Root))
+        {
+            http.Response.StatusCode = StatusCodes.Status303SeeOther;
+            http.Response.Headers.Location = http.Request.PathBase + AccountRateLimiting.RejectedPath;
+        }
+
+        return ValueTask.CompletedTask;
+    };
+
     // Издаването на QR токен се брои по клиент, а сканирането по бариста (ADR-005). Авторизацията вече е минала,
     // затова потребителят е известен; ключът на дяла е неговият Id от access токена.
     options.AddPolicy(QrEndpoints.IssueRateLimitPolicy, context =>
